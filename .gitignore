@@ -36,6 +36,8 @@
 # Build results
 Debug/
 debug/
+build/
+Build/
 DebugPublic/
 debugPublic/
 Release/
