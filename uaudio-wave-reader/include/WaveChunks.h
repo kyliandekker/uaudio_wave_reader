@@ -58,7 +58,7 @@ namespace uaudio
 
 #pragma pack(push, 1)
 		constexpr auto RIFF_CHUNK_ID = "RIFF";
-		constexpr auto FMT_CHUNK_FORMAT = "WAVE";
+		constexpr auto RIFF_CHUNK_FORMAT = "WAVE";
 		struct RIFF_Chunk
 		{
 			RIFF_Chunk() = default;

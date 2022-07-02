@@ -2,28 +2,18 @@
 #include <cstring>
 
 #include "../../include/WaveReader.h"
-#include "../../include/WaveFile.h"
 #include "../../include/WaveChunks.h"
-#include "../include/WaveChunkAllocator.h"
 #include "../include/PrivateDefines.h"
-#include "../include/WaveChunkAllocator.h"
 
 namespace uaudio
 {
 	namespace wave_reader
 	{
-		/// <summary>
-		/// Loads the sound.
-		/// </summary>
-		/// <param name="a_FilePath">The path to the file.</param>
-		/// <param name="a_WaveFile">The wave format.</param>
-		/// <returns>WAVE loading status.</returns>
-		UAUDIO_WAVE_READER_RESULT WaveReader::LoadSound(const char* a_FilePath, WaveFile& a_WaveFile)
+		UAUDIO_WAVE_READER_RESULT WaveReader::GetSoundSize(const char* a_FilePath, size_t& a_Size)
 		{
 			FILE* file = nullptr;
 
-			// Empty the wave format.
-			a_WaveFile = WaveFile();
+			a_Size = 0;
 
 			// Check if the file that has been passed is opened in some way.
 			if (file != nullptr)
@@ -46,9 +36,6 @@ namespace uaudio
 			rewind(file);
 
 			printf("<WaveReader> Reading wave file: (%s\"%s\"%s).\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
-
-			// Set allocation size to 0.
-			size_t allocation_size = 0;
 
 			char previous_chunk_id[CHUNK_ID_SIZE] = {};
 			long previous_tell = 0;
@@ -77,6 +64,7 @@ namespace uaudio
 
 				bool get_chunk = true;
 
+				// TODO: Chunk filtering.
 				// Check if the chunk is in the config.
 				//for (const auto& chunk_name : a_WaveConfig.chunksToLoad)
 				//	if (strncmp(&chunk_id[0], chunk_name, CHUNK_ID_SIZE) == 0)
@@ -84,17 +72,57 @@ namespace uaudio
 
 				if (get_chunk)
 				{
-					allocation_size += chunk_size;
-					allocation_size += sizeof(WaveChunkData);
+					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
+					a_Size += chunk_size;
+					a_Size += sizeof(WaveChunkData);
 					fseek(file, static_cast<long>(chunk_size), SEEK_CUR);
 				}
 			}
 
-			// Allocate for chunks.
-			a_WaveFile.m_Chunks = new WaveChunkAllocator(allocation_size);
+			fclose(file);
+			file = nullptr;
 
+			printf("<WaveReader> Opened file successfully: (%s\"%s\"%s).\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
+			printf("<WaveReader> Wave file (%s\"%s%s\") has a size of %s%i%s.\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE, COLOR_YELLOW, a_Size, COLOR_WHITE);
+			return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_OK;
+		}
+
+		/// <summary>
+		/// Loads the sound.
+		/// </summary>
+		/// <param name="a_FilePath">The path to the file.</param>
+		/// <param name="a_ChunkCollection">The chunk collection.</param>
+		/// <returns>WAVE loading status.</returns>
+		UAUDIO_WAVE_READER_RESULT WaveReader::LoadSound(const char* a_FilePath, ChunkCollection& a_ChunkCollection, WaveInfo a_WaveInfo)
+		{
+			FILE* file = nullptr;
+
+			a_ChunkCollection = ChunkCollection(a_WaveInfo.ptr, a_WaveInfo.size);
+
+			// Check if the file that has been passed is opened in some way.
+			if (file != nullptr)
+			{
+				fclose(file);
+				file = nullptr;
+			}
+
+			// Open the file.
+			fopen_s(&file, a_FilePath, "rb");
+			if (file == nullptr)
+			{
+				printf("<WaveReader> Failed opening file: (%s\"%s%s\").\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
+				return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_ERR_FILE_NOT_FOUND;
+			}
+
+			// Go to eof and store the size.
+			fseek(file, 0, SEEK_END);
+			const long total_size = ftell(file);
 			rewind(file);
-			previous_tell = 0;
+
+			printf("<WaveReader> Reading wave file: (%s\"%s\"%s).\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
+
+			char previous_chunk_id[CHUNK_ID_SIZE] = {};
+			long previous_tell = 0;
 
 			// Set the actual data of the now allocated chunks.
 			// Check if file has reached eof.
@@ -121,7 +149,7 @@ namespace uaudio
 				if (get_chunk)
 				{
 					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
-					WaveChunkData* chunk_data = reinterpret_cast<WaveChunkData*>(a_WaveFile.m_Chunks->Alloc(chunk_size + sizeof(WaveChunkData)));
+					WaveChunkData* chunk_data = reinterpret_cast<WaveChunkData*>(a_ChunkCollection.Alloc(chunk_size + sizeof(WaveChunkData)));
 
 					if (chunk_data != nullptr)
 					{
@@ -150,9 +178,9 @@ namespace uaudio
 		/// Saves a file with the chunks inside the wave format.
 		/// </summary>
 		/// <param name="a_FilePath">The path to save to.</param>
-		/// <param name="a_WaveFile">The format with all the chunks.</param>
+		/// <param name="a_ChunkCollection">The chunk collection.</param>
 		/// <returns>WAVE saving status.</returns>
-		UAUDIO_WAVE_READER_RESULT WaveReader::SaveSound(const char* a_FilePath, const WaveFile& a_WaveFile)
+		UAUDIO_WAVE_READER_RESULT WaveReader::SaveSound(const char* a_FilePath, const ChunkCollection& a_ChunkCollection)
 		{
 			FILE* file;
 
@@ -164,16 +192,16 @@ namespace uaudio
 				return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_ERR_FILE_BAD;
 			}
 
-			WaveChunkData* chunk_data = nullptr;
-			RIFF_Chunk riff_chunk;
-			memcpy(riff_chunk.format, FMT_CHUNK_FORMAT, CHUNK_ID_SIZE);
-			WaveFile::ConstructChunk(chunk_data, RIFF_CHUNK_ID, riff_chunk);
+			// Calculate total file size (minus riff chunk header).
+			uint32_t size = sizeof(RIFF_Chunk) + static_cast<uint32_t>(a_ChunkCollection.Size());
 
-			chunk_data->chunkSize = sizeof(RIFF_Chunk) + static_cast<uint32_t>(a_WaveFile.m_Chunks->Size());
+			// Construct riff chunk.
+			fwrite(RIFF_CHUNK_ID, CHUNK_ID_SIZE, 1, file);
+			fwrite(&size, sizeof(size), 1, file);
+			fwrite(RIFF_CHUNK_FORMAT, CHUNK_ID_SIZE, 1, file);
 
-			fwrite(chunk_data, sizeof(WaveChunkData) + sizeof(RIFF_Chunk), 1, file);
-
-			fwrite(a_WaveFile.m_Chunks->Start(), a_WaveFile.m_Chunks->Size(), 1, file);
+			// Write the chunks.
+			fwrite(a_ChunkCollection.Start(), a_ChunkCollection.Size(), 1, file);
 
 			fclose(file);
 			file = nullptr;

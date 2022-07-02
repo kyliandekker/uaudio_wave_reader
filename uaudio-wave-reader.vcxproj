@@ -27,7 +27,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -40,7 +40,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -94,6 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,6 +133,7 @@ xcopy "$(SolutionDir)uaudio-wave-reader\include" "$(OutputPath)include"/i /d /y 
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -166,8 +168,6 @@ xcopy "$(SolutionDir)uaudio-wave-reader\include" "$(OutputPath)include"/i /d /y 
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="uaudio-wave-reader\private\src\main.cpp" />
-    <ClCompile Include="uaudio-wave-reader\private\src\WaveChunkAllocator.cpp" />
-    <ClCompile Include="uaudio-wave-reader\private\src\WaveFile.cpp" />
     <ClCompile Include="uaudio-wave-reader\private\src\WaveReader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,10 +176,9 @@ xcopy "$(SolutionDir)uaudio-wave-reader\include" "$(OutputPath)include"/i /d /y 
     <ClInclude Include="uaudio-wave-reader\include\UAUDIO_WAVE_READER_RESULT.h" />
     <ClInclude Include="uaudio-wave-reader\include\WaveChunkData.h" />
     <ClInclude Include="uaudio-wave-reader\include\WaveChunks.h" />
-    <ClInclude Include="uaudio-wave-reader\include\WaveFile.h" />
     <ClInclude Include="uaudio-wave-reader\include\WaveReader.h" />
     <ClInclude Include="uaudio-wave-reader\private\include\PrivateDefines.h" />
-    <ClInclude Include="uaudio-wave-reader\private\include\WaveChunkAllocator.h" />
+    <ClInclude Include="uaudio-wave-reader\include\ChunkCollection.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
