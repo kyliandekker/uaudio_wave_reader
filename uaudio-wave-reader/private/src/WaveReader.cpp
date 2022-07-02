@@ -206,7 +206,7 @@ namespace uaudio
 			fclose(file);
 			file = nullptr;
 
-			printf("<WaveReader> Saved file: (%s\"%s%s\")\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
+			printf("<WaveReader> Saved file successfully: (%s\"%s%s\").\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
 			return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_OK;
 		}
 

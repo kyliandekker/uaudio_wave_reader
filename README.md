@@ -47,7 +47,7 @@ To save a wave file, the user can do something like this:
 ```
 Result:
 ```
-<WaveReader> Opened file successfully: ("new-test.wav").
+<WaveReader> Saved file successfully: ("new-test.wav").
 ```
 
 ## Future features
