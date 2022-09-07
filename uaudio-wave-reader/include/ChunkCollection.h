@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include <memory>
 
 #include "./Utils.h"
 #include "./WaveChunkData.h"
@@ -53,15 +52,6 @@ namespace uaudio
 				return nullptr;
 			}
 
-			ChunkCollection(void* a_Ptr, size_t a_Size)
-			{
-				assert(a_Size != 0);
-				m_Size = a_Size;
-				m_Start = a_Ptr;
-				m_Buffer = m_Start;
-				m_End = utils::add(m_Start, m_Size);
-			}
-
 			void* Alloc(size_t a_Size)
 			{
 				assert(m_Start != nullptr);
@@ -81,17 +71,20 @@ namespace uaudio
 				return m_End;
 			}
 
-			size_t Size() const
-			{
-				return m_Size;
-			}
-
 			void* GetBuffer() const
 			{
 				return m_Buffer;
 			}
 		public:
-			ChunkCollection() = default;
+
+			ChunkCollection(void* a_Ptr, size_t a_Size)
+			{
+				assert(a_Size != 0);
+				m_Size = a_Size;
+				m_Start = a_Ptr;
+				m_Buffer = m_Start;
+				m_End = utils::add(m_Start, m_Size);
+			}
 
 			ChunkCollection(const ChunkCollection& rhs) = default;
 
@@ -103,7 +96,7 @@ namespace uaudio
 			/// Returns the data.
 			/// </summary>
 			/// <returns></returns>
-			void* GetData()
+			void* GetData() const
 			{
 				return m_Start;
 			}
@@ -127,7 +120,7 @@ namespace uaudio
 				T* custom_chunk = reinterpret_cast<T*>(utils::add(a_ChunkData, sizeof(WaveChunkData)));
 				memcpy(custom_chunk, &a_Chunk, sizeof(T));
 
-				return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_OK;
+				return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 			}
 
 			/// <summary>
@@ -141,10 +134,10 @@ namespace uaudio
 				if (data != nullptr)
 				{
 					a_Type = T(reinterpret_cast<T*>(utils::add(data, sizeof(WaveChunkData))));
-					return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_OK;
+					return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 				}
 
-				return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_ERR_CHUNK_NOT_FOUND;
+				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_CHUNK_NOT_FOUND;
 			}
 
 			/// <summary>
@@ -159,10 +152,10 @@ namespace uaudio
 				if (data != nullptr)
 				{
 					a_Size = data->chunkSize;
-					return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_OK;
+					return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 				}
 
-				return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_ERR_CHUNK_NOT_FOUND;
+				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_CHUNK_NOT_FOUND;
 			}
 
 			/// <summary>
@@ -181,7 +174,7 @@ namespace uaudio
 					a_Size++;
 					data = reinterpret_cast<unsigned char*>(utils::add(data, wave_chunk_data->chunkSize));
 				}
-				return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_OK;
+				return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 			}
 
 			/// <summary>
@@ -197,10 +190,19 @@ namespace uaudio
 				if (data != nullptr)
 				{
 					a_ChunkFound = true;
-					return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_OK;
+					return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 				}
 
-				return UAUDIO_WAVE_READER_RESULT::UAUDIO_WAVE_READER_ERR_CHUNK_NOT_FOUND;
+				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_CHUNK_NOT_FOUND;
+			}
+
+			/// <summary>
+			/// Returns the total size of all chunks.
+			/// </summary>
+			/// <returns></returns>
+			size_t GetSize() const
+			{
+				return m_Size;
 			}
 		};
 	}
