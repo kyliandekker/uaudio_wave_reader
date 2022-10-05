@@ -107,6 +107,9 @@ namespace uaudio
 					continue;
 				}
 
+				// Copy for the fail-safe above.
+				memcpy(previous_chunk_id, chunk_id, sizeof(chunk_id));
+
 				bool get_chunk = false;
 				for (size_t i = 0; i < a_Filter.filter_size; i++)
 					if (strncmp(&chunk_id[0], a_Filter.filter[i].data(), CHUNK_ID_SIZE) == 0)
