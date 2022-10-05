@@ -716,6 +716,74 @@ namespace uaudio
 
 			SMPL_Sample_Loop* samples = nullptr;
 		};
+
+		/*
+		**
+		**
+		** 4 bytes (char array)			Chunk ID.
+		**									Char array saying 'inst' (0x63756520).
+		** 4 bytes (long)				Chunk Size.
+		**									Length of chunk starting at next byte.
+		**
+		** 1 bytes (byte)				Unshifted Note.
+		**									The unshifted note field has the same meaning as the sampler chunk's MIDI Unity
+		**									Note which specifies the musical note at which the sample will be played at it's original
+		**									sample rate (the sample rate specified in the format chunk).
+		**
+		** 1 bytes (byte)				Fine Tune.
+		**									The fine tune value specifies how much the sample's pitch should be altered when the sound
+		**									is played back in cents (1/100 of a semitone). A negative value means that the pitch should
+		**									be played lower and a positive value means that it should be played at a higher pitch.
+		**
+		** 1 bytes (byte)				Gain.
+		**									The gain value specifies the number of decibels to adjust the output when it is played.
+		**									A value of 0dB means no change, 6dB means double the amplitude of each sample and -6dB means
+		**									to halve the amplitude of each sample. Every additional +/-6dB will double or halve the amplitude again.
+		**
+		** 1 bytes (byte)				Low Note.
+		**									The note fields specify the MIDI note range for which the waveform should be played when receiving MIDI note
+		**									events (from software or triggered by a MIDI controller). This range does not need to include the Unshifted Note value.
+		**
+		** 1 bytes (byte)				High Note.
+		**									The note fields specify the MIDI note range for which the waveform should be played when receiving MIDI note
+		**									events (from software or triggered by a MIDI controller). This range does not need to include the Unshifted Note value.
+		**
+		** 1 bytes (byte)				Low Velocity.
+		**									The velocity fields specify the range of MIDI velocities that should cause the waveform to be played. 1 being the lightest
+		**									amount and 127 being the hardest.
+		**
+		** 1 bytes (byte)				High Velocity.
+		**									The velocity fields specify the range of MIDI velocities that should cause the waveform to be played. 1 being the lightest
+		**									amount and 127 being the hardest.
+		**
+		*/
+
+		constexpr auto INST_CHUNK_ID = "inst";
+		struct INST_Chunk
+		{
+			INST_Chunk() = default;
+			INST_Chunk(INST_Chunk* a_DataBuffer)
+			{
+				if (a_DataBuffer != nullptr)
+				{
+					unshiftedNote = a_DataBuffer->unshiftedNote;
+					fineTune = a_DataBuffer->fineTune;
+					gain = a_DataBuffer->gain;
+					lowNote = a_DataBuffer->lowNote;
+					highNote = a_DataBuffer->highNote;
+					lowVelocity = a_DataBuffer->lowVelocity;
+					highVelocity = a_DataBuffer->highVelocity;
+				}
+			}
+
+			uint8_t unshiftedNote = 0;
+			uint8_t fineTune = 0;
+			uint8_t gain = 0;
+			uint8_t lowNote = 0;
+			uint8_t highNote = 0;
+			uint8_t lowVelocity = 0;
+			uint8_t highVelocity = 0;
+		};
 #pragma pack(pop)
 	}
 }

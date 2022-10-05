@@ -12,6 +12,7 @@ namespace uaudio
 		UAUDIO_WAVE_READER_RESULT WaveReader::FTell(const char* a_FilePath, size_t& a_Size, Filter a_Filter)
 		{
 			FILE* file = nullptr;
+
 			long file_size = 0;
 			UAUDIO_WAVE_READER_RESULT result = OpenWave(a_FilePath, file, file_size);
 			if (result != UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
@@ -30,7 +31,7 @@ namespace uaudio
 				// Load the chunk.
 				result = LoadChunk(a_FilePath, file, previous_tell, &previous_chunk_id[0], &chunk_id[0], chunk_size);
 				if (result != UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
-					return result;
+					break;
 
 				// Check if it is the riff chunk, if it is, don't allocate.
 				if (strncmp(&chunk_id[0], RIFF_CHUNK_ID, CHUNK_ID_SIZE) == 0)
@@ -78,6 +79,7 @@ namespace uaudio
 		UAUDIO_WAVE_READER_RESULT WaveReader::LoadWave(const char* a_FilePath, ChunkCollection& a_ChunkCollection, Filter a_Filter)
 		{
 			FILE* file = nullptr;
+
 			long file_size = 0;
 			UAUDIO_WAVE_READER_RESULT result = OpenWave(a_FilePath, file, file_size);
 			if (result != UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
@@ -96,7 +98,7 @@ namespace uaudio
 				// Load the chunk.
 				result = LoadChunk(a_FilePath, file, previous_tell, &previous_chunk_id[0], &chunk_id[0], chunk_size);
 				if (result != UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
-					return result;
+					break;
 
 				// Check if it is the riff chunk, if it is, don't allocate.
 				if (strncmp(&chunk_id[0], RIFF_CHUNK_ID, CHUNK_ID_SIZE) == 0)
@@ -149,7 +151,7 @@ namespace uaudio
 		/// <returns>WAVE saving status.</returns>
 		UAUDIO_WAVE_READER_RESULT WaveReader::SaveWave(const char* a_FilePath, const ChunkCollection& a_ChunkCollection)
 		{
-			FILE* file;
+			FILE* file  = nullptr;
 
 			// Open the file.
 			fopen_s(&file, a_FilePath, "wb");
@@ -210,7 +212,7 @@ namespace uaudio
 			return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 		}
 
-		UAUDIO_WAVE_READER_RESULT WaveReader::LoadChunk(const char* a_FilePath, FILE* a_File, long& a_PreviousTell, char* a_PrevChunkID, char* a_ChunkID, uint32_t& a_ChunkSize)
+		UAUDIO_WAVE_READER_RESULT WaveReader::LoadChunk(const char*, FILE* a_File, long& a_PreviousTell, char* a_PrevChunkID, char* a_ChunkID, uint32_t& a_ChunkSize)
 		{
 			char chunk_id[CHUNK_ID_SIZE] = {};
 
@@ -222,18 +224,24 @@ namespace uaudio
 			// Fail-safe for if the algorithm is stuck with a specific chunk. It gives up at second try.
 			if (a_PreviousTell == ftell(a_File))
 			{
-				printf("<WaveReader> Failed to load wave file (%s\"%s\"%s): Got stuck on %s\"%.4s\"%s and %s\"%.4s\"%s chunks.\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE, COLOR_YELLOW, a_ChunkID, COLOR_WHITE, COLOR_YELLOW, a_PrevChunkID, COLOR_WHITE);
+				// Set the current tell.
+				a_PreviousTell = ftell(a_File);
+
+				memcpy(a_PrevChunkID, a_ChunkID, sizeof(chunk_id));
+
 				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_FILE_BAD;
 			}
 
 			// Fail-safe for if the algorithm is stuck with a specific chunk. It gives up at second try.
 			if (strncmp(a_ChunkID, a_PrevChunkID, CHUNK_ID_SIZE) == 0)
 			{
-				printf("<WaveReader> Failed to load wave file (%s\"%s\"%s): Got stuck on %s\"%.4s\"%s and %s\"%.4s\"%s chunks.\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE, COLOR_YELLOW, a_ChunkID, COLOR_WHITE, COLOR_YELLOW, a_PrevChunkID, COLOR_WHITE);
+				// Set the current tell.
+				a_PreviousTell = ftell(a_File);
+
+				memcpy(a_PrevChunkID, a_ChunkID, sizeof(chunk_id));
+
 				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_FILE_BAD;
 			}
-
-			memcpy(a_PrevChunkID, a_ChunkID, sizeof(chunk_id));
 
 			// Store chunk size.
 			fread(&a_ChunkSize, sizeof(a_ChunkSize), 1, a_File);
