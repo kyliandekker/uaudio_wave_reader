@@ -28,7 +28,7 @@ To load a wave file, the user can do something like this:
 	uaudio::wave_reader::ChunkCollection chunkCollection = uaudio::wave_reader::ChunkCollection(allocated_space, size);
 
 	// Use the allocated memory and also pass the size.
-	uaudio::wave_reader::WaveReader::LoadWave(path, chunkCollection, filters);
+	uaudio::wave_reader::WaveReader::LoadWave(path, chunkCollection);
 ```
 Result:
 ```
@@ -47,6 +47,31 @@ To save a wave file, the user can do something like this:
 Result:
 ```
 <WaveReader> Saved file successfully: ("new-test.wav").
+```
+
+### Filters
+You can use filters to filter out only the chunks that you need.
+```cpp
+	std::string_view chunk_filters[] =
+	{
+		"data",
+		"fmt "
+	};
+
+	const uaudio::wave_reader::Filter filters{ chunk_filters, std::size(chunk_filters) };
+	
+	const char* path = "./resources/test.wav";
+	size_t size = 0;
+	uaudio::wave_reader::WaveReader::FTell(path, size, filters);
+```
+Result:
+```
+<WaveReader> Opened file successfully: ("resources/test.wav").
+<WaveReader> Found "JUNK" chunk with size "28" (not in filter).
+<WaveReader> Found "fmt " chunk with size "16".
+<WaveReader> Found "data" chunk with size "1448688".
+<WaveReader> Found "LIST" chunk with size "26" (not in filter).
+<WaveReader> Loaded file successfully: ("resources/test.wav").
 ```
 
 ## Implemented features
