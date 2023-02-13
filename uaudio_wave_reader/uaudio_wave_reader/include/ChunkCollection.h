@@ -52,6 +52,43 @@ namespace uaudio
 				return nullptr;
 			}
 
+			/// <summary>
+			/// Retrieves a chunk by index.
+			/// </summary>
+			/// <param name="a_Index">The index.</param>
+			/// <returns>The chunk on success, nullptr on failure.</returns>
+			WaveChunkData* GetChunkFromAllocator(uint32_t a_Index) const
+			{
+				assert(m_Start != nullptr);
+
+				unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
+				uint32_t index = 0;
+				while (data < m_End)
+				{
+					WaveChunkData* wave_chunk_data = reinterpret_cast<WaveChunkData*>(data);
+					data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(WaveChunkData) + wave_chunk_data->chunkSize));
+					if (index == a_Index)
+						return wave_chunk_data;
+					index++;
+				}
+				return nullptr;
+			}
+
+			uint32_t GetNumberOfChunks() const
+			{
+				assert(m_Start != nullptr);
+
+				unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
+				uint32_t index = 0;
+				while (data < m_End)
+				{
+					WaveChunkData* wave_chunk_data = reinterpret_cast<WaveChunkData*>(data);
+					data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(WaveChunkData) + wave_chunk_data->chunkSize));
+					index++;
+				}
+				return index;
+			}
+
 			void* Alloc(size_t a_Size)
 			{
 				assert(m_Start != nullptr);
@@ -126,14 +163,29 @@ namespace uaudio
 			/// <summary>
 			/// Returns the first chunk that shares the chunk id.
 			/// </summary>
-			/// <param name="a_ChunkID">The chunk id (must be a length of 4 characters).</param>
 			template <class T>
 			UAUDIO_WAVE_READER_RESULT GetChunkFromData(T& a_Type, const char* a_ChunkID) const
 			{
 				WaveChunkData* data = GetChunkFromAllocator(a_ChunkID);
 				if (data != nullptr)
 				{
-					a_Type = T(reinterpret_cast<T*>(utils::add(data, sizeof(WaveChunkData))));
+					a_Type = T(reinterpret_cast<T*>(utils::add(data, 0)));
+					return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
+				}
+
+				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_CHUNK_NOT_FOUND;
+			}
+
+			/// <summary>
+			/// Returns a chunk by index.
+			/// </summary>
+			template <class T>
+			UAUDIO_WAVE_READER_RESULT GetChunkFromData(T& a_Type, uint32_t a_Index) const
+			{
+				WaveChunkData* data = GetChunkFromAllocator(a_Index);
+				if (data != nullptr)
+				{
+					a_Type = T(reinterpret_cast<T*>(utils::add(data, 0)));
 					return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 				}
 
@@ -165,15 +217,7 @@ namespace uaudio
 			/// <returns>UAudio Result.</returns>
 			UAUDIO_WAVE_READER_RESULT GetNumberOfChunks(size_t& a_Size) const
 			{
-				a_Size = 0;
-				unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
-				while (data < m_End)
-				{
-					WaveChunkData* wave_chunk_data = reinterpret_cast<WaveChunkData*>(data);
-
-					a_Size++;
-					data = reinterpret_cast<unsigned char*>(utils::add(data, wave_chunk_data->chunkSize));
-				}
+				a_Size = GetNumberOfChunks();
 				return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 			}
 

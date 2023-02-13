@@ -36,7 +36,7 @@ namespace uaudio
 				// Check if it is the riff chunk, if it is, don't allocate.
 				if (strncmp(&chunk_id[0], RIFF_CHUNK_ID, CHUNK_ID_SIZE) == 0)
 				{
-					fseek(file, sizeof(RIFF_Chunk), SEEK_CUR);
+					fseek(file, sizeof(RIFF_Chunk) - sizeof(WaveChunkData), SEEK_CUR);
 					continue;
 				}
 
@@ -103,7 +103,7 @@ namespace uaudio
 				// Check if it is the riff chunk, if it is, don't allocate.
 				if (strncmp(&chunk_id[0], RIFF_CHUNK_ID, CHUNK_ID_SIZE) == 0)
 				{
-					fseek(file, sizeof(RIFF_Chunk), SEEK_CUR);
+					fseek(file, sizeof(RIFF_Chunk) - sizeof(WaveChunkData), SEEK_CUR);
 					continue;
 				}
 
