@@ -167,10 +167,11 @@ namespace uaudio
 			// Calculate total file size (minus riff chunk header).
 			const uint32_t size = sizeof(RIFF_Chunk) + static_cast<uint32_t>(a_ChunkCollection.GetSize());
 
-			// Construct riff chunk.
-			fwrite(RIFF_CHUNK_ID, CHUNK_ID_SIZE, 1, file);
-			fwrite(&size, sizeof(size), 1, file);
-			fwrite(RIFF_CHUNK_FORMAT, CHUNK_ID_SIZE, 1, file);
+			RIFF_Chunk riff_chunk;
+			memcpy(riff_chunk.chunk_id, RIFF_CHUNK_ID, CHUNK_ID_SIZE);
+			riff_chunk.chunkSize = size;
+			memcpy(riff_chunk.format, RIFF_CHUNK_FORMAT, CHUNK_ID_SIZE);
+			fwrite(&riff_chunk, sizeof(riff_chunk), 1, file);
 
 			// Write the chunks.
 			fwrite(a_ChunkCollection.Start(), a_ChunkCollection.GetSize(), 1, file);

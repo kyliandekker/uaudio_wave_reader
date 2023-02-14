@@ -27,7 +27,7 @@ TEST_CASE("Audio Loading")
 {
 	SUBCASE("Existing file")
 	{
-		SUBCASE("16-bit")
+		SUBCASE("")
 		{
 			log("OPENING EXISTING VALID FILE", "Process started");
 		}
@@ -196,11 +196,47 @@ TEST_CASE("Audio Loading")
 					log_success("32-bit", "Done");
 				}
 
-				SUBCASE("16-bit")
+				SUBCASE("")
 				{
 					log_success("OPENING EXISTING VALID FILE", "Process finished");
 				}
 			}
 		}
+	}
+	SUBCASE("Saving files")
+	{
+		log("SAVING FILES", "Process started");
+
+		std::string_view chunk_filters[] =
+		{
+			"data",
+			"fmt "
+		};
+
+		const uaudio::wave_reader::Filter filters{ chunk_filters, std::size(chunk_filters) };
+
+		const char* path = "resources/32.wav";
+
+		size_t size = 0;
+		uaudio::wave_reader::WaveReader::FTell(path, size, filters);
+
+		void* allocated_space = malloc(size);
+		uaudio::wave_reader::ChunkCollection chunkCollection = uaudio::wave_reader::ChunkCollection(allocated_space, size);
+
+		uaudio::wave_reader::WaveReader::LoadWave(path, chunkCollection, filters);
+
+		uaudio::wave_reader::WaveReader::SaveWave("./resources/32-new.wav", chunkCollection);
+
+		size = 0;
+		uaudio::wave_reader::WaveReader::FTell("./resources/32-new.wav", size, filters);
+		void* new_allocated_space = malloc(size);
+		uaudio::wave_reader::ChunkCollection newChunkCollection = uaudio::wave_reader::ChunkCollection(allocated_space, size);
+
+		uaudio::wave_reader::WaveReader::LoadWave("./resources/32-new.wav", newChunkCollection, filters);
+
+		free(allocated_space);
+		free(new_allocated_space);
+
+		log_success("SAVING FILES", "Process finished");
 	}
 }
