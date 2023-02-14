@@ -192,7 +192,7 @@ xcopy "$(ProjectDir)$(ProjectName)\include" "$(OutputPath)include"/i /d /y /e
     <ClInclude Include="uaudio_wave_reader\include\Defines.h" />
     <ClInclude Include="uaudio_wave_reader\include\UAUDIO_WAVE_READER_RESULT.h" />
     <ClInclude Include="uaudio_wave_reader\include\Utils.h" />
-    <ClInclude Include="uaudio_wave_reader\include\WaveChunkData.h" />
+    <ClInclude Include="uaudio_wave_reader\include\ChunkHeader.h" />
     <ClInclude Include="uaudio_wave_reader\include\WaveChunks.h" />
     <ClInclude Include="uaudio_wave_reader\include\WaveReader.h" />
     <ClInclude Include="uaudio_wave_reader\private\include\PrivateDefines.h" />

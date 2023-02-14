@@ -36,7 +36,7 @@ namespace uaudio
 				// Check if it is the riff chunk, if it is, don't allocate.
 				if (strncmp(&chunk_id[0], RIFF_CHUNK_ID, CHUNK_ID_SIZE) == 0)
 				{
-					fseek(file, sizeof(RIFF_Chunk) - sizeof(WaveChunkData), SEEK_CUR);
+					fseek(file, sizeof(RIFF_Chunk) - sizeof(ChunkHeader), SEEK_CUR);
 					continue;
 				}
 
@@ -55,7 +55,7 @@ namespace uaudio
 				{
 					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
 					a_Size += chunk_size;
-					a_Size += sizeof(WaveChunkData);
+					a_Size += sizeof(ChunkHeader);
 				}
 				else
 					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s (not in filter).\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
@@ -103,7 +103,7 @@ namespace uaudio
 				// Check if it is the riff chunk, if it is, don't allocate.
 				if (strncmp(&chunk_id[0], RIFF_CHUNK_ID, CHUNK_ID_SIZE) == 0)
 				{
-					fseek(file, sizeof(RIFF_Chunk) - sizeof(WaveChunkData), SEEK_CUR);
+					fseek(file, sizeof(RIFF_Chunk) - sizeof(ChunkHeader), SEEK_CUR);
 					continue;
 				}
 
@@ -121,13 +121,13 @@ namespace uaudio
 				if (get_chunk)
 				{
 					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
-					WaveChunkData* chunk_data = reinterpret_cast<WaveChunkData*>(a_ChunkCollection.Alloc(chunk_size + sizeof(WaveChunkData)));
+					ChunkHeader* chunk_data = reinterpret_cast<ChunkHeader*>(a_ChunkCollection.Alloc(chunk_size + sizeof(ChunkHeader)));
 
 					if (chunk_data != nullptr)
 					{
 						memcpy(chunk_data->chunk_id, chunk_id, sizeof(chunk_id));
 						chunk_data->chunkSize = chunk_size;
-						fread(utils::add(chunk_data, sizeof(WaveChunkData)), 1, chunk_size, file);
+						fread(utils::add(chunk_data, sizeof(ChunkHeader)), 1, chunk_size, file);
 					}
 					else
 						fseek(file, static_cast<long>(chunk_size), SEEK_CUR);
