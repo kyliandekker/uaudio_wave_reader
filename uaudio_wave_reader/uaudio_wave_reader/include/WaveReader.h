@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "./UAUDIO_WAVE_READER_RESULT.h"
 #include "./ChunkCollection.h"
@@ -18,21 +19,39 @@ namespace uaudio
 		class Filter
 		{
 		public:
-			std::string_view* filter = nullptr;
-			size_t filter_size = 0;
 			uint16_t bits_per_sample = WAVE_BITS_PER_SAMPLE_16;
+			size_t Size() const { return m_Size; }
 
-			explicit Filter(uint16_t a_BitsPerSample)
+			~Filter();
+
+			Filter()
+			{ }
+
+			Filter(uint16_t a_BitsPerSample);
+
+			Filter(const Filter& rhs);
+			
+			Filter& operator=(const Filter& rhs)
 			{
-				bits_per_sample = a_BitsPerSample;
+				if (this != &rhs)
+					Assign(rhs);
+				return *this;
 			}
 
-			explicit Filter(std::string_view* a_Filter = nullptr, size_t a_FilterSize = 0, uint16_t a_BitsPerSample = WAVE_BITS_PER_SAMPLE_16)
+			Filter(std::vector<std::string> a_Filter, uint16_t a_BitsPerSample = WAVE_BITS_PER_SAMPLE_16);
+
+			Filter(std::vector<char*> a_Filter, uint16_t a_BitsPerSample = WAVE_BITS_PER_SAMPLE_16);
+
+			char* operator [](size_t i) const
 			{
-				filter = a_Filter;
-				filter_size = a_FilterSize;
-				bits_per_sample = a_BitsPerSample;
+				return m_Data + (i * CHUNK_ID_SIZE);
 			}
+		private:
+			void SetData(char* a_Data, size_t a_FilterSize, uint16_t a_BitsPerSample);
+			void Assign(const Filter& rhs);
+
+			size_t m_Size = 0;
+			char* m_Data = nullptr;
 		};
 
 		/*

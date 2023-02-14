@@ -44,11 +44,11 @@ namespace uaudio
 				memcpy(previous_chunk_id, chunk_id, sizeof(chunk_id));
 
 				bool get_chunk = false;
-				for (size_t i = 0; i < a_Filter.filter_size; i++)
-					if (strncmp(&chunk_id[0], a_Filter.filter[i].data(), CHUNK_ID_SIZE) == 0)
+				for (size_t i = 0; i < a_Filter.Size(); i++)
+					if (strncmp(&chunk_id[0], a_Filter[i], CHUNK_ID_SIZE) == 0)
 						get_chunk = true;
 
-				if (a_Filter.filter_size == 0)
+				if (a_Filter.Size() == 0)
 					get_chunk = true;
 
 				if (get_chunk)
@@ -111,11 +111,11 @@ namespace uaudio
 				memcpy(previous_chunk_id, chunk_id, sizeof(chunk_id));
 
 				bool get_chunk = false;
-				for (size_t i = 0; i < a_Filter.filter_size; i++)
-					if (strncmp(&chunk_id[0], a_Filter.filter[i].data(), CHUNK_ID_SIZE) == 0)
+				for (size_t i = 0; i < a_Filter.Size(); i++)
+					if (strncmp(&chunk_id[0], a_Filter[i], CHUNK_ID_SIZE) == 0)
 						get_chunk = true;
 
-				if (a_Filter.filter_size == 0)
+				if (a_Filter.Size() == 0)
 					get_chunk = true;
 
 				if (get_chunk)

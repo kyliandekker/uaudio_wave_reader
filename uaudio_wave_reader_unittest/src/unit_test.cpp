@@ -1,6 +1,8 @@
 ﻿#include "doctest.h"
 
 #include <complex>
+#include <string>
+#include <vector>
 #include <WaveReader.h>
 #include <Defines.h>
 #include <WaveChunks.h>
@@ -32,7 +34,7 @@ TEST_CASE("Audio Loading")
 			log("OPENING EXISTING VALID FILE", "Process started");
 		}
 
-		std::string_view chunk_filters[] =
+		std::vector<std::string> chunk_filters =
 		{
 			"data",
 			"fmt ",
@@ -40,7 +42,7 @@ TEST_CASE("Audio Loading")
 			"acid",
 		};
 
-		const uaudio::wave_reader::Filter filters{ chunk_filters, std::size(chunk_filters) };
+		const uaudio::wave_reader::Filter filters{ chunk_filters };
 
 		SUBCASE("Telling filesize")
 		{
@@ -207,13 +209,13 @@ TEST_CASE("Audio Loading")
 	{
 		log("SAVING FILES", "Process started");
 
-		std::string_view chunk_filters[] =
+		std::vector<std::string> chunk_filters =
 		{
 			"data",
 			"fmt "
 		};
 
-		const uaudio::wave_reader::Filter filters{ chunk_filters, std::size(chunk_filters) };
+		const uaudio::wave_reader::Filter filters{ chunk_filters };
 
 		const char* path = "resources/32.wav";
 

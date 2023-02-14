@@ -75,25 +75,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDirDir)bin\$(PlatformShortname)</OutDir>
     <IntDir>$(ProjectDir)build\$(PlatformShortname)_$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)_$(PlatformShortname)_$(Configuration)</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDirDir)bin\$(PlatformShortname)</OutDir>
     <IntDir>$(ProjectDir)build\$(PlatformShortname)_$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)_$(PlatformShortname)_$(Configuration)</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDirDir)bin\$(PlatformShortname)</OutDir>
     <IntDir>$(ProjectDir)build\$(PlatformShortname)_$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)_$(PlatformShortname)_$(Configuration)</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDirDir)bin\$(PlatformShortname)</OutDir>
     <IntDir>$(ProjectDir)build\$(PlatformShortname)_$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)_$(PlatformShortname)_$(Configuration)</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -184,6 +184,7 @@ xcopy "$(ProjectDir)$(ProjectName)\include" "$(OutputPath)include"/i /d /y /e
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="uaudio_wave_reader\private\src\Filter.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\WaveReader.cpp" />
   </ItemGroup>
   <ItemGroup>
