@@ -34,20 +34,14 @@ TEST_CASE("Audio Loading")
 			log("OPENING EXISTING VALID FILE", "Process started");
 		}
 
-		std::vector<std::string> chunk_filters =
-		{
-			"data",
-			"fmt ",
-			"fact",
-			"acid",
-		};
-
-		const uaudio::wave_reader::Filter filters{ chunk_filters };
+		const char* chunk_filters = "datafmt factacid";
 
 		SUBCASE("Telling filesize")
 		{
 			SUBCASE("16-bit")
 			{
+				const uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 4 };
+
 				const char* path = "resources/16.wav";
 
 				size_t size = 0;
@@ -57,7 +51,7 @@ TEST_CASE("Audio Loading")
 
 				log_success("16-bit, fmt and data filter", "Done");
 
-				const uaudio::wave_reader::Filter bigger_filters{};
+				const uaudio::wave_reader::ChunkFilter bigger_filters{};
 
 				size = 0;
 				uaudio::wave_reader::WaveReader::FTell(path, size, bigger_filters);
@@ -68,6 +62,8 @@ TEST_CASE("Audio Loading")
 			}
 			SUBCASE("24-bit")
 			{
+				const uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 4 };
+
 				const char* path = "resources/24.wav";
 
 				size_t size = 0;
@@ -77,7 +73,7 @@ TEST_CASE("Audio Loading")
 
 				log_success("24-bit, fmt and data filter", "Done");
 
-				const uaudio::wave_reader::Filter bigger_filters{};
+				const uaudio::wave_reader::ChunkFilter bigger_filters{};
 
 				size = 0;
 				uaudio::wave_reader::WaveReader::FTell(path, size, bigger_filters);
@@ -88,6 +84,8 @@ TEST_CASE("Audio Loading")
 			}
 			SUBCASE("32-bit")
 			{
+				const uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 4 };
+
 				const char* path = "resources/32.wav";
 
 				size_t size = 0;
@@ -97,7 +95,7 @@ TEST_CASE("Audio Loading")
 
 				log_success("32-bit, fmt and data filter", "Done");
 
-				const uaudio::wave_reader::Filter bigger_filters{};
+				const uaudio::wave_reader::ChunkFilter bigger_filters{};
 
 				size = 0;
 				uaudio::wave_reader::WaveReader::FTell(path, size, bigger_filters);
@@ -111,6 +109,8 @@ TEST_CASE("Audio Loading")
 			{
 				SUBCASE("16-bit")
 				{
+					const uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 4 };
+
 					const char* path = "resources/2 Brothers on the 4th Floor - Fairytales (Re-Style Remix).wav";
 
 					size_t size = 0;
@@ -147,6 +147,8 @@ TEST_CASE("Audio Loading")
 				}
 				SUBCASE("24-bit")
 				{
+					const uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 4 };
+
 					const char* path = "resources/24.wav";
 
 					size_t size = 0;
@@ -173,6 +175,8 @@ TEST_CASE("Audio Loading")
 				}
 				SUBCASE("32-bit")
 				{
+					const uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 4 };
+
 					const char* path = "resources/32.wav";
 
 					size_t size = 0;
@@ -209,13 +213,9 @@ TEST_CASE("Audio Loading")
 	{
 		log("SAVING FILES", "Process started");
 
-		std::vector<std::string> chunk_filters =
-		{
-			"data",
-			"fmt "
-		};
+		const char* chunk_filters = "datafmt ";
 
-		const uaudio::wave_reader::Filter filters{ chunk_filters };
+		const uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 2 };
 
 		const char* path = "resources/32.wav";
 

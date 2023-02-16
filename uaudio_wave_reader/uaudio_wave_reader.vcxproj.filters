@@ -2,7 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="uaudio_wave_reader\private\src\WaveReader.cpp" />
-    <ClCompile Include="uaudio_wave_reader\private\src\Filter.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\ChunkFilter.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\ChunkCollection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="uaudio_wave_reader\private\include\PrivateDefines.h" />
@@ -13,5 +14,6 @@
     <ClInclude Include="uaudio_wave_reader\include\Utils.h" />
     <ClInclude Include="uaudio_wave_reader\include\ChunkHeader.h" />
     <ClInclude Include="uaudio_wave_reader\include\WaveChunks.h" />
+    <ClInclude Include="uaudio_wave_reader\include\ChunkFilter.h" />
   </ItemGroup>
 </Project>

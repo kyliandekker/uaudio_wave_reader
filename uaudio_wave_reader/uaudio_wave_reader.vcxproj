@@ -184,11 +184,13 @@ xcopy "$(ProjectDir)$(ProjectName)\include" "$(OutputPath)include"/i /d /y /e
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="uaudio_wave_reader\private\src\Filter.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\ChunkCollection.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\ChunkFilter.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\WaveReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="uaudio_wave_reader\include\ChunkCollection.h" />
+    <ClInclude Include="uaudio_wave_reader\include\ChunkFilter.h" />
     <ClInclude Include="uaudio_wave_reader\include\Defines.h" />
     <ClInclude Include="uaudio_wave_reader\include\UAUDIO_WAVE_READER_RESULT.h" />
     <ClInclude Include="uaudio_wave_reader\include\Utils.h" />

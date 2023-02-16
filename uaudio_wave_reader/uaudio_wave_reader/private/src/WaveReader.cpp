@@ -9,7 +9,7 @@ namespace uaudio
 {
 	namespace wave_reader
 	{
-		UAUDIO_WAVE_READER_RESULT WaveReader::FTell(const char* a_FilePath, size_t& a_Size, Filter a_Filter)
+		UAUDIO_WAVE_READER_RESULT WaveReader::FTell(const char* a_FilePath, size_t& a_Size, ChunkFilter a_ChunkFilter)
 		{
 			FILE* file = nullptr;
 
@@ -36,6 +36,7 @@ namespace uaudio
 				// Check if it is the riff chunk, if it is, don't allocate.
 				if (strncmp(&chunk_id[0], RIFF_CHUNK_ID, CHUNK_ID_SIZE) == 0)
 				{
+					printf("<WaveReader> Found %s\"%.4s\"%s chunk.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE);
 					fseek(file, sizeof(RIFF_Chunk) - sizeof(ChunkHeader), SEEK_CUR);
 					continue;
 				}
@@ -44,11 +45,11 @@ namespace uaudio
 				memcpy(previous_chunk_id, chunk_id, sizeof(chunk_id));
 
 				bool get_chunk = false;
-				for (size_t i = 0; i < a_Filter.Size(); i++)
-					if (strncmp(&chunk_id[0], a_Filter[i], CHUNK_ID_SIZE) == 0)
+				for (size_t i = 0; i < a_ChunkFilter.size(); i++)
+					if (strncmp(&chunk_id[0], a_ChunkFilter[i], CHUNK_ID_SIZE) == 0)
 						get_chunk = true;
 
-				if (a_Filter.Size() == 0)
+				if (a_ChunkFilter.size() == 0)
 					get_chunk = true;
 
 				if (get_chunk)
@@ -58,7 +59,7 @@ namespace uaudio
 					a_Size += sizeof(ChunkHeader);
 				}
 				else
-					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s (not in filter).\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
+					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s (not in ChunkFilter).\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
 				fseek(file, static_cast<long>(chunk_size), SEEK_CUR);
 			}
 
@@ -76,7 +77,7 @@ namespace uaudio
 		/// <param name="a_FilePath">The path to the file.</param>
 		/// <param name="a_ChunkCollection">The chunk collection.</param>
 		/// <returns>WAVE loading status.</returns>
-		UAUDIO_WAVE_READER_RESULT WaveReader::LoadWave(const char* a_FilePath, ChunkCollection& a_ChunkCollection, Filter a_Filter)
+		UAUDIO_WAVE_READER_RESULT WaveReader::LoadWave(const char* a_FilePath, ChunkCollection& a_ChunkCollection, ChunkFilter a_ChunkFilter)
 		{
 			FILE* file = nullptr;
 
@@ -111,11 +112,11 @@ namespace uaudio
 				memcpy(previous_chunk_id, chunk_id, sizeof(chunk_id));
 
 				bool get_chunk = false;
-				for (size_t i = 0; i < a_Filter.Size(); i++)
-					if (strncmp(&chunk_id[0], a_Filter[i], CHUNK_ID_SIZE) == 0)
+				for (size_t i = 0; i < a_ChunkFilter.size(); i++)
+					if (strncmp(&chunk_id[0], a_ChunkFilter[i], CHUNK_ID_SIZE) == 0)
 						get_chunk = true;
 
-				if (a_Filter.Size() == 0)
+				if (a_ChunkFilter.size() == 0)
 					get_chunk = true;
 
 				if (get_chunk)
@@ -165,7 +166,7 @@ namespace uaudio
 			}
 
 			// Calculate total file size (minus riff chunk header).
-			const uint32_t size = sizeof(RIFF_Chunk) + static_cast<uint32_t>(a_ChunkCollection.GetSize());
+			const uint32_t size = sizeof(RIFF_Chunk) + static_cast<uint32_t>(a_ChunkCollection.size());
 
 			RIFF_Chunk riff_chunk;
 			memcpy(riff_chunk.chunk_id, RIFF_CHUNK_ID, CHUNK_ID_SIZE);
@@ -174,7 +175,7 @@ namespace uaudio
 			fwrite(&riff_chunk, sizeof(riff_chunk), 1, file);
 
 			// Write the chunks.
-			fwrite(a_ChunkCollection.Start(), a_ChunkCollection.GetSize(), 1, file);
+			fwrite(a_ChunkCollection.data(), a_ChunkCollection.size(), 1, file);
 
 			fclose(file);
 			file = nullptr;
