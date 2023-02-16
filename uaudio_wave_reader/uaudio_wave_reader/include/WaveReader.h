@@ -9,6 +9,7 @@
 #include "./UAUDIO_WAVE_READER_RESULT.h"
 #include "./ChunkCollection.h"
 #include "./ChunkFilter.h"
+#include "./Defines.h"
 
 namespace uaudio
 {
@@ -21,8 +22,8 @@ namespace uaudio
 		class WaveReader
 		{
 		public:
-			static UAUDIO_WAVE_READER_RESULT FTell(const char* a_FilePath, size_t& a_Size, ChunkFilter a_Filter = ChunkFilter());
-			static UAUDIO_WAVE_READER_RESULT LoadWave(const char* a_FilePath, ChunkCollection& a_ChunkCollection, ChunkFilter a_Filter = ChunkFilter());
+			static UAUDIO_WAVE_READER_RESULT FTell(const char* a_FilePath, size_t& a_Size, ChunkFilter a_Filter = ChunkFilter(), uint16_t a_BitsPerSample = WAVE_BITS_PER_SAMPLE_16);
+			static UAUDIO_WAVE_READER_RESULT LoadWave(const char* a_FilePath, ChunkCollection& a_ChunkCollection, ChunkFilter a_Filter = ChunkFilter(), uint16_t a_BitsPerSample = WAVE_BITS_PER_SAMPLE_16);
 			static UAUDIO_WAVE_READER_RESULT SaveWave(const char* a_FilePath, const ChunkCollection& a_ChunkCollection);
 		private:
 			static UAUDIO_WAVE_READER_RESULT OpenWave(const char* a_FilePath, FILE*& a_File, long& a_FileSize);

@@ -13,7 +13,6 @@ namespace uaudio
 		class ChunkFilter
 		{
 		public:
-			uint16_t bits_per_sample = WAVE_BITS_PER_SAMPLE_16;
 			size_t size() const { return m_Size; }
 
 			ChunkFilter()
@@ -21,7 +20,7 @@ namespace uaudio
 
 			ChunkFilter(uint16_t a_BitsPerSample);
 
-			ChunkFilter(const char* a_Filter, size_t a_Size, uint16_t a_BitsPerSample = WAVE_BITS_PER_SAMPLE_16);
+			ChunkFilter(const char* a_Filter, size_t a_Size);
 
 			const char* operator [](size_t i) const
 			{

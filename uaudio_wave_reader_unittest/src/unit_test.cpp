@@ -257,12 +257,27 @@ TEST_CASE("Audio Loading")
 		void* allocated_space = malloc(size);
 		uaudio::wave_reader::ChunkCollection chunkCollection = uaudio::wave_reader::ChunkCollection(allocated_space, size);
 
+		CHECK(chunkCollection.size() == 1128992);
+
 		uaudio::wave_reader::WaveReader::LoadWave(path, chunkCollection, filters);
 
-		chunkCollection.Realloc(malloc(size + sizeof(uaudio::wave_reader::ACID_Chunk)), size + sizeof(uaudio::wave_reader::ACID_Chunk));
+		size_t num_of_chunks = 0;
+		chunkCollection.GetNumberOfChunks(num_of_chunks);
+		CHECK(num_of_chunks == 2);
+
+		size_t new_size = size + sizeof(uaudio::wave_reader::ACID_Chunk);
+		chunkCollection.Realloc(malloc(size + sizeof(uaudio::wave_reader::ACID_Chunk)), new_size);
 		uaudio::wave_reader::ACID_Chunk* acid_chunk = reinterpret_cast<uaudio::wave_reader::ACID_Chunk*>(chunkCollection.Alloc(sizeof(acid_chunk)));
 
 		acid_chunk->tempo = 220;
+		memcpy(acid_chunk->chunk_id, uaudio::wave_reader::ACID_CHUNK_ID, uaudio::wave_reader::CHUNK_ID_SIZE);
+		acid_chunk->chunkSize = sizeof(uaudio::wave_reader::ACID_Chunk);
+
+		CHECK(chunkCollection.size() == 1129024);
+		CHECK(chunkCollection.size() == new_size);
+		CHECK(chunkCollection.size() == 1128992 + sizeof(uaudio::wave_reader::ACID_Chunk));
+		chunkCollection.GetNumberOfChunks(num_of_chunks);
+		CHECK(num_of_chunks == 3);
 
 		free(allocated_space);
 

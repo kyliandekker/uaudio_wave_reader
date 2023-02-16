@@ -9,7 +9,7 @@ namespace uaudio
 {
 	namespace wave_reader
 	{
-		UAUDIO_WAVE_READER_RESULT WaveReader::FTell(const char* a_FilePath, size_t& a_Size, ChunkFilter a_ChunkFilter)
+		UAUDIO_WAVE_READER_RESULT WaveReader::FTell(const char* a_FilePath, size_t& a_Size, ChunkFilter a_ChunkFilter, uint16_t )
 		{
 			FILE* file = nullptr;
 
@@ -77,7 +77,7 @@ namespace uaudio
 		/// <param name="a_FilePath">The path to the file.</param>
 		/// <param name="a_ChunkCollection">The chunk collection.</param>
 		/// <returns>WAVE loading status.</returns>
-		UAUDIO_WAVE_READER_RESULT WaveReader::LoadWave(const char* a_FilePath, ChunkCollection& a_ChunkCollection, ChunkFilter a_ChunkFilter)
+		UAUDIO_WAVE_READER_RESULT WaveReader::LoadWave(const char* a_FilePath, ChunkCollection& a_ChunkCollection, ChunkFilter a_ChunkFilter, uint16_t )
 		{
 			FILE* file = nullptr;
 

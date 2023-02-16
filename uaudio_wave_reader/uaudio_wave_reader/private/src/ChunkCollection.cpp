@@ -50,26 +50,12 @@ namespace uaudio
 			return nullptr;
 		}
 		
-		uint32_t ChunkCollection::GetNumberOfChunks() const
-		{
-			assert(m_Start != nullptr);
-
-			unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
-			uint32_t index = 0;
-			while (data < m_End)
-			{
-				ChunkHeader* wave_chunk_data = reinterpret_cast<ChunkHeader*>(data);
-				data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->chunkSize));
-				index++;
-			}
-			return index;
-		}
-		
 		void* ChunkCollection::Alloc(size_t a_Size)
 		{
 			assert(m_Start != nullptr);
 			assert(m_Size > 0);
 			assert(m_Allocated + a_Size <= m_Size);
+
 			void* current = utils::add(m_Start, m_Allocated);
 			m_Allocated += a_Size;
 			return current;
@@ -82,11 +68,13 @@ namespace uaudio
 
         void ChunkCollection::Realloc(void* a_Buffer, size_t a_Size)
         {
+			assert(m_Start != nullptr);
 			assert(a_Size > m_Size);
 
 			memmove(a_Buffer, m_Start, a_Size);
 			m_Start = a_Buffer;
 			m_Size = a_Size;
+			m_End = utils::add(m_Start, m_Size);
         }
 		
 		void* ChunkCollection::data() const
@@ -109,7 +97,16 @@ namespace uaudio
 		
 		UAUDIO_WAVE_READER_RESULT ChunkCollection::GetNumberOfChunks(size_t& a_Size) const
 		{
-			a_Size = GetNumberOfChunks();
+			assert(m_Start != nullptr);
+
+			unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
+			a_Size = 0;
+			while (data < m_End)
+			{
+				ChunkHeader* wave_chunk_data = reinterpret_cast<ChunkHeader*>(data);
+				data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->chunkSize));
+				a_Size++;
+			}
 			return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 		}
 		
