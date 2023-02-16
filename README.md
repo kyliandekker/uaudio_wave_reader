@@ -76,7 +76,7 @@ Result:
 
 ## Implemented features
 * Chunk filtering (providing an array or vector of chunk ids. Only those will be loaded and other chunks will be ignored)
+* Adding new or custom chunks to an existing chunk collection
 
 ## Future features
-* Adding new or custom chunks to an existing chunk collection
 * Conversion settings (8-bit, 16-bit, 24-bit, 32-bit, mono, stereo, etc)
