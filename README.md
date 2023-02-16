@@ -52,13 +52,9 @@ Result:
 ### Filters
 You can use filters to filter out only the chunks that you need.
 ```cpp
-	std::string_view chunk_filters[] =
-	{
-		"data",
-		"fmt "
-	};
+	const char* chunk_filters = "datafmt ";
 
-	const uaudio::wave_reader::Filter filters{ chunk_filters, std::size(chunk_filters) };
+	const uaudio::wave_reader::Filter filters{ chunk_filters, 2 };
 	
 	const char* path = "./resources/test.wav";
 	size_t size = 0;
