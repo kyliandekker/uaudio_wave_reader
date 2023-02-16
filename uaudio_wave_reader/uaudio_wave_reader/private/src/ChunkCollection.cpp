@@ -12,7 +12,7 @@ namespace uaudio
 			assert(a_Size != 0);
 			m_Size = a_Size;
 			m_Start = a_Ptr;
-			m_Buffer = m_Start;
+			m_Allocated = 0;
 			m_End = utils::add(m_Start, m_Size);
 		}
 
@@ -69,8 +69,9 @@ namespace uaudio
 		{
 			assert(m_Start != nullptr);
 			assert(m_Size > 0);
-			void* current = m_Buffer;
-			m_Buffer = utils::add(m_Buffer, a_Size);
+			assert(m_Allocated + a_Size <= m_Size);
+			void* current = utils::add(m_Start, m_Allocated);
+			m_Allocated += a_Size;
 			return current;
 		}
 		
@@ -79,10 +80,14 @@ namespace uaudio
 			return m_End;
 		}
 
-		void* ChunkCollection::GetBuffer() const
-		{
-			return m_Buffer;
-		}
+        void ChunkCollection::Realloc(void* a_Buffer, size_t a_Size)
+        {
+			assert(a_Size > m_Size);
+
+			memmove(a_Buffer, m_Start, a_Size);
+			m_Start = a_Buffer;
+			m_Size = a_Size;
+        }
 		
 		void* ChunkCollection::data() const
 		{

@@ -24,9 +24,9 @@ namespace uaudio
 		{
 		private:
 			void* m_Start = nullptr;
-			void* m_Buffer = nullptr;
 			void* m_End = nullptr;
 			size_t m_Size = 0;
+			size_t m_Allocated = 0;
 
 			friend class WaveReader;
 
@@ -46,11 +46,10 @@ namespace uaudio
 
 			uint32_t GetNumberOfChunks() const;
 
-			void* Alloc(size_t a_Size);
-
 			void* End() const;
-			void* GetBuffer() const;
 		public:
+			void Realloc(void* a_Buffer, size_t a_Size);
+			void* Alloc(size_t a_Size);
 
 			ChunkCollection(void* a_Ptr, size_t a_Size);
 
