@@ -18,6 +18,7 @@ namespace uaudio
 		/*
 		 * This is the wave reader. It is responsible for loading the chunks of a wave file and creating a ChunkCollection.
 		 * It is also responsible for saving wave files.
+		 * NOTE: Needs to be a class to be friends with ChunkCollection.
 		*/
 		class WaveReader
 		{
