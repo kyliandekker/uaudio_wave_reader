@@ -259,7 +259,6 @@ TEST_CASE("Audio Loading")
 
 		uaudio::wave_reader::WaveReader::LoadWave(path, chunkCollection, filters);
 
-		chunkCollection.Realloc(malloc(size + sizeof(uaudio::wave_reader::ACID_Chunk)), size + sizeof(uaudio::wave_reader::ACID_Chunk));
 		uaudio::wave_reader::ACID_Chunk* acid_chunk = reinterpret_cast<uaudio::wave_reader::ACID_Chunk*>(chunkCollection.Alloc(sizeof(acid_chunk)));
 
 		acid_chunk->tempo = 220;
