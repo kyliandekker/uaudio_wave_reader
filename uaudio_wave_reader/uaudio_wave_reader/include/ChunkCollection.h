@@ -44,10 +44,12 @@ namespace uaudio
 			/// <returns>The chunk on success, nullptr on failure.</returns>
 			ChunkHeader* GetChunkFromAllocator(uint32_t a_Index) const;
 
+			void* Alloc(size_t a_Size);
+
 			void* End() const;
 		public:
 			void Realloc(void* a_Buffer, size_t a_Size);
-			void* Alloc(size_t a_Size);
+			void* Alloc(size_t a_Size, const char* a_ChunkId);
 
 			ChunkCollection(void* a_Ptr, size_t a_Size);
 

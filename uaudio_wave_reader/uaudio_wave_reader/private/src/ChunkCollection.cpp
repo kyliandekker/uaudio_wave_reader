@@ -60,6 +60,17 @@ namespace uaudio
 			m_Allocated += a_Size;
 			return current;
 		}
+
+		void* ChunkCollection::Alloc(size_t a_Size, const char* a_ChunkId)
+		{
+			ChunkHeader* chunkCollection = reinterpret_cast<ChunkHeader*>(Alloc(a_Size));
+			if (chunkCollection)
+			{
+				memcpy(chunkCollection->chunk_id, a_ChunkId, CHUNK_ID_SIZE);
+				chunkCollection->chunkSize = static_cast<uint32_t>(a_Size);
+			}
+			return reinterpret_cast<void*>(chunkCollection);
+		}
 		
 		void* ChunkCollection::End() const
 		{
