@@ -9,6 +9,8 @@ namespace uaudio
 {
 	namespace wave_reader
 	{
+		bool showInfo = false;
+
 		UAUDIO_WAVE_READER_RESULT WaveReader::FTell(const char* a_FilePath, size_t& a_Size, ChunkFilter a_ChunkFilter, uint16_t )
 		{
 			FILE* file = nullptr;
@@ -36,7 +38,8 @@ namespace uaudio
 				// Check if it is the riff chunk, if it is, don't allocate.
 				if (strncmp(&chunk_id[0], RIFF_CHUNK_ID, CHUNK_ID_SIZE) == 0)
 				{
-					printf("<WaveReader> Found %s\"%.4s\"%s chunk.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE);
+					if (showInfo)
+						printf("<WaveReader> Found %s\"%.4s\"%s chunk.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE);
 					fseek(file, sizeof(RIFF_Chunk) - sizeof(ChunkHeader), SEEK_CUR);
 					continue;
 				}
@@ -54,20 +57,27 @@ namespace uaudio
 
 				if (get_chunk)
 				{
-					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
+					if (showInfo)
+						printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
 					a_Size += chunk_size;
 					a_Size += sizeof(ChunkHeader);
 				}
 				else
-					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s (not in ChunkFilter).\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
+				{
+					if (showInfo)
+						printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s (not in ChunkFilter).\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
+				}
 				fseek(file, static_cast<long>(chunk_size), SEEK_CUR);
 			}
 
 			fclose(file);
 			file = nullptr;
 
-			printf("<WaveReader> Loaded file successfully: (%s\"%s\"%s).\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
-			printf("<WaveReader> Wave file (%s\"%s%s\") has a size of %s%zu%s.\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE, COLOR_YELLOW, a_Size, COLOR_WHITE);
+			if (showInfo)
+			{
+				printf("<WaveReader> Loaded file successfully: (%s\"%s\"%s).\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
+				printf("<WaveReader> Wave file (%s\"%s%s\") has a size of %s%zu%s.\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE, COLOR_YELLOW, a_Size, COLOR_WHITE);
+			}
 			return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 		}
 
@@ -121,7 +131,8 @@ namespace uaudio
 
 				if (get_chunk)
 				{
-					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
+					if (showInfo)
+						printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
 					ChunkHeader* chunk_data = reinterpret_cast<ChunkHeader*>(a_ChunkCollection.Alloc(chunk_size + sizeof(ChunkHeader)));
 
 					if (chunk_data != nullptr)
@@ -135,7 +146,8 @@ namespace uaudio
 				}
 				else
 				{
-					printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s that is not in config.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
+					if (showInfo)
+						printf("<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s that is not in config.\n", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
 					fseek(file, static_cast<long>(chunk_size), SEEK_CUR);
 				}
 			}
@@ -143,7 +155,8 @@ namespace uaudio
 			fclose(file);
 			file = nullptr;
 
-			printf("<WaveReader> Loaded file successfully: (%s\"%s\"%s).\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
+			if (showInfo)
+				printf("<WaveReader> Loaded file successfully: (%s\"%s\"%s).\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
 			return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 		}
 
@@ -204,7 +217,8 @@ namespace uaudio
 			fopen_s(&a_File, a_FilePath, "rb");
 			if (a_File == nullptr)
 			{
-				printf("<WaveReader> Cannot find file: (%s\"%s%s\").\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
+				if (showInfo)
+					printf("<WaveReader> Cannot find file: (%s\"%s%s\").\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
 				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_FILE_NOTFOUND;
 			}
 
@@ -213,7 +227,8 @@ namespace uaudio
 			a_FileSize = ftell(a_File);
 			rewind(a_File);
 
-			printf("<WaveReader> Opened file successfully: (%s\"%s\"%s).\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
+			if (showInfo)
+				printf("<WaveReader> Opened file successfully: (%s\"%s\"%s).\n", COLOR_YELLOW, a_FilePath, COLOR_WHITE);
 			return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 		}
 
@@ -255,6 +270,142 @@ namespace uaudio
 			a_PreviousTell = ftell(a_File);
 
 			return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
+		}
+
+		UAUDIO_WAVE_READER_RESULT WaveReader::CalculateConversionSize(long& , long , uint16_t , uint16_t )
+		{
+			//switch (a_OriginalBitsPerSample)
+			//{
+			//	case WAVE_BITS_PER_SAMPLE_8:
+			//	{
+			//		switch (a_NewBitsPerSample)
+			//		{
+			//			case WAVE_BITS_PER_SAMPLE_8:
+			//			{
+			//				a_Size = a_CurrentSize;
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_16:
+			//			{
+			//				// TODO: IMPLEMENT
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_24:
+			//			{
+			//				// TODO: IMPLEMENT
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_32:
+			//			{
+			//				// TODO: IMPLEMENT
+			//				break;
+			//			}
+			//			default:
+			//			{
+			//				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_BITS_PER_SAMPLE_UNSUPPORTED;
+			//			}
+			//		}
+			//		break;
+			//	}
+			//	case WAVE_BITS_PER_SAMPLE_16:
+			//	{
+			//		switch (a_NewBitsPerSample)
+			//		{
+			//			case WAVE_BITS_PER_SAMPLE_8:
+			//			{
+			//				// TODO: IMPLEMENT
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_16:
+			//			{
+			//				a_Size = a_CurrentSize;
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_24:
+			//			{
+			//				a_Size = conversion::Calculate16To24Size(a_CurrentSize);
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_32:
+			//			{
+			//				a_Size = conversion::Calculate16To32Size(a_CurrentSize);
+			//				break;
+			//			}
+			//			default:
+			//			{
+			//				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_BITS_PER_SAMPLE_UNSUPPORTED;
+			//			}
+			//		}
+			//		break;
+			//	}
+			//	case WAVE_BITS_PER_SAMPLE_24:
+			//	{
+			//		switch (a_NewBitsPerSample)
+			//		{
+			//			case WAVE_BITS_PER_SAMPLE_8:
+			//			{
+			//				// TODO: IMPLEMENT
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_16:
+			//			{
+			//				a_Size = conversion::Calculate24To16Size(a_CurrentSize);
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_24:
+			//			{
+			//				a_Size = a_CurrentSize;
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_32:
+			//			{
+			//				a_Size = conversion::Calculate24To32Size(a_CurrentSize);
+			//				break;
+			//			}
+			//			default:
+			//			{
+			//				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_BITS_PER_SAMPLE_UNSUPPORTED;
+			//			}
+			//		}
+			//		break;
+			//	}
+			//	case WAVE_BITS_PER_SAMPLE_32:
+			//	{
+			//		switch (a_NewBitsPerSample)
+			//		{
+			//			case WAVE_BITS_PER_SAMPLE_8:
+			//			{
+			//				// TODO: IMPLEMENT
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_16:
+			//			{
+			//				a_Size = conversion::Calculate32To16Size(a_CurrentSize);
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_24:
+			//			{
+			//				a_Size = conversion::Calculate24To16Size(a_CurrentSize);
+			//				break;
+			//			}
+			//			case WAVE_BITS_PER_SAMPLE_32:
+			//			{
+			//				a_Size = a_CurrentSize;
+			//				break;
+			//			}
+			//			default:
+			//			{
+			//				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_BITS_PER_SAMPLE_UNSUPPORTED;
+			//			}
+			//		}
+			//		break;
+			//	}
+			//	default:
+			//	{
+			//		return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_BITS_PER_SAMPLE_UNSUPPORTED;
+			//	}
+			//}
+			return UAUDIO_WAVE_READER_RESULT();
 		}
 	}
 }
