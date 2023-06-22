@@ -35,14 +35,14 @@ namespace uaudio
 			/// </summary>
 			/// <param name="a_ChunkID">The chunk id (must be a length of 4 characters).</param>
 			/// <returns>The chunk on success, nullptr on failure.</returns>
-			ChunkHeader* GetChunkFromAllocator(const char* a_ChunkID) const;
+			ChunkHeader* GetChunk(const char* a_ChunkID) const;
 
 			/// <summary>
 			/// Retrieves a chunk by index.
 			/// </summary>
 			/// <param name="a_Index">The index.</param>
 			/// <returns>The chunk on success, nullptr on failure.</returns>
-			ChunkHeader* GetChunkFromAllocator(uint32_t a_Index) const;
+			ChunkHeader* GetChunk(uint32_t a_Index) const;
 
 			void* Alloc(size_t a_Size);
 
@@ -93,7 +93,7 @@ namespace uaudio
 			template <class T>
 			UAUDIO_WAVE_READER_RESULT GetChunkFromData(T& a_Type, const char* a_ChunkID) const
 			{
-				ChunkHeader* data = GetChunkFromAllocator(a_ChunkID);
+				ChunkHeader* data = GetChunk(a_ChunkID);
 				if (data != nullptr)
 				{
 					a_Type = T(reinterpret_cast<T*>(utils::add(data, 0)));
@@ -109,7 +109,7 @@ namespace uaudio
 			template <class T>
 			UAUDIO_WAVE_READER_RESULT GetChunkFromData(T& a_Type, uint32_t a_Index) const
 			{
-				ChunkHeader* data = GetChunkFromAllocator(a_Index);
+				ChunkHeader* data = GetChunk(a_Index);
 				if (data != nullptr)
 				{
 					a_Type = T(reinterpret_cast<T*>(utils::add(data, 0)));
