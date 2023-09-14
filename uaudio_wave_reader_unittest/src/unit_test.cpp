@@ -3,9 +3,9 @@
 #include <complex>
 #include <string>
 #include <vector>
-#include <WaveReader.h>
-#include <Defines.h>
-#include <WaveChunks.h>
+#include "uaudio_wave_reader/uaudio_wave_reader/include/WaveReader.h"
+#include "uaudio_wave_reader/uaudio_wave_reader/include/Defines.h"
+#include "uaudio_wave_reader/uaudio_wave_reader/include/WaveChunks.h"
 
 constexpr auto COLOR_YELLOW = "\033[0;33m";
 constexpr auto COLOR_WHITE = "\033[0;37m";

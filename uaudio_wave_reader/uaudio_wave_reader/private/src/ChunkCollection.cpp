@@ -16,7 +16,7 @@ namespace uaudio
 			m_End = utils::add(m_Start, m_Size);
 		}
 
-		ChunkHeader* ChunkCollection::GetChunk(const char* a_ChunkID) const
+		ChunkHeader* ChunkCollection::GetChunkFromAllocator(const char* a_ChunkID) const
 		{
 			assert(m_Start != nullptr);
 
@@ -33,7 +33,7 @@ namespace uaudio
 			return nullptr;
 		}
 		
-		ChunkHeader* ChunkCollection::GetChunk(uint32_t a_Index) const
+		ChunkHeader* ChunkCollection::GetChunkFromAllocator(uint32_t a_Index) const
 		{
 			assert(m_Start != nullptr);
 
@@ -96,7 +96,7 @@ namespace uaudio
 		UAUDIO_WAVE_READER_RESULT ChunkCollection::GetChunkSize(uint32_t& a_Size, const char* a_ChunkID) const
 		{
 			a_Size = 0;
-			ChunkHeader* data = GetChunk(a_ChunkID);
+			ChunkHeader* data = GetChunkFromAllocator(a_ChunkID);
 			if (data != nullptr)
 			{
 				a_Size = data->chunkSize;
@@ -125,7 +125,7 @@ namespace uaudio
 		{
 			a_ChunkFound = false;
 
-			ChunkHeader* data = GetChunk(a_ChunkID);
+			ChunkHeader* data = GetChunkFromAllocator(a_ChunkID);
 			if (data != nullptr)
 			{
 				a_ChunkFound = true;
