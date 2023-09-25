@@ -5,6 +5,7 @@
 #include <vector>
 #include "uaudio_wave_reader/uaudio_wave_reader/include/WaveReader.h"
 #include "uaudio_wave_reader/uaudio_wave_reader/include/Defines.h"
+#include "uaudio_wave_reader/uaudio_wave_reader/include/ChunkCollection.h"
 #include "uaudio_wave_reader/uaudio_wave_reader/include/WaveChunks.h"
 
 constexpr auto COLOR_YELLOW = "\033[0;33m";
@@ -279,5 +280,17 @@ TEST_CASE("Audio Loading")
 		free(allocated_space);
 
 		log_success("ADDING CHUNKS", "Process finished");
+	}
+	SUBCASE("OPENING FILES")
+	{
+		const char* path = "resources/33.wav";
+
+		size_t size = 0;
+		uaudio::wave_reader::WaveReader::FTell(path, size);
+
+		void* allocated_space = malloc(size);
+		uaudio::wave_reader::ChunkCollection chunkCollection = uaudio::wave_reader::ChunkCollection(allocated_space, size);
+
+		log_success("OPENING FILE THAT DOES NOT EXIST", "Process finished");
 	}
 }

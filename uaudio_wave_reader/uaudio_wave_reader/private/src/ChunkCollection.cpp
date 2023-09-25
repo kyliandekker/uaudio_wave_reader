@@ -2,6 +2,7 @@
 #include <cstring>
 
 #include "ChunkCollection.h"
+#include "Logger.h"
 
 namespace uaudio
 {
@@ -9,16 +10,26 @@ namespace uaudio
 	{
 		ChunkCollection::ChunkCollection(void* a_Ptr, size_t a_Size)
 		{
-			assert(a_Size != 0);
-			m_Size = a_Size;
-			m_Start = a_Ptr;
-			m_Allocated = 0;
-			m_End = utils::add(m_Start, m_Size);
+			if (a_Size > 0)
+			{
+				m_Size = a_Size;
+				m_Start = a_Ptr;
+				m_Allocated = 0;
+				m_End = utils::add(m_Start, m_Size);
+			}
+			else
+			{
+				logger::Logger::Print(logger::LOGSEVERITY_ERROR, "<WaveReader> Cannot allocate with size of 0.");
+			}
 		}
 
 		ChunkHeader* ChunkCollection::GetChunkFromAllocator(const char* a_ChunkID) const
 		{
-			assert(m_Start != nullptr);
+			if (m_Start == nullptr)
+			{
+				logger::Logger::Print(logger::LOGSEVERITY_ERROR, "<WaveReader> Chunk collection has not been initialized.");
+				return nullptr;
+			}
 
 			unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
 			while (data < m_End)
@@ -35,7 +46,11 @@ namespace uaudio
 		
 		ChunkHeader* ChunkCollection::GetChunkFromAllocator(uint32_t a_Index) const
 		{
-			assert(m_Start != nullptr);
+			if (m_Start == nullptr)
+			{
+				logger::Logger::Print(logger::LOGSEVERITY_ERROR, "<WaveReader> Chunk collection has not been initialized.");
+				return nullptr;
+			}
 
 			unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
 			uint32_t index = 0;
@@ -52,9 +67,21 @@ namespace uaudio
 		
 		void* ChunkCollection::Alloc(size_t a_Size)
 		{
-			assert(m_Start != nullptr);
-			assert(m_Size > 0);
-			assert(m_Allocated + a_Size <= m_Size);
+			if (m_Start == nullptr)
+			{
+				logger::Logger::Print(logger::LOGSEVERITY_ERROR, "<WaveReader> Chunk collection has not been initialized.");
+				return nullptr;
+			}
+			if (m_Size == 0)
+			{
+				logger::Logger::Print(logger::LOGSEVERITY_ERROR, "<WaveReader> Chunk collection has a size of 0.");
+				return nullptr;
+			}
+			if (m_Allocated + a_Size > m_Size)
+			{
+				logger::Logger::Print(logger::LOGSEVERITY_ERROR, "<WaveReader> Chunk collection does not have enough memory allocated.");
+				return nullptr;
+			}
 
 			void* current = utils::add(m_Start, m_Allocated);
 			m_Allocated += a_Size;
@@ -79,8 +106,16 @@ namespace uaudio
 
         void ChunkCollection::Realloc(void* a_Buffer, size_t a_Size)
         {
-			assert(m_Start != nullptr);
-			assert(a_Size > m_Size);
+			if (m_Start == nullptr)
+			{
+				logger::Logger::Print(logger::LOGSEVERITY_ERROR, "<WaveReader> Chunk collection has not been initialized.");
+				return;
+			}
+			if (a_Size < m_Size)
+			{
+				logger::Logger::Print(logger::LOGSEVERITY_ERROR, "<WaveReader> Cannot reallocate memory of less size than previous memory.");
+				return;
+			}
 
 			memmove(a_Buffer, m_Start, a_Size);
 			m_Start = a_Buffer;
@@ -108,7 +143,11 @@ namespace uaudio
 		
 		UAUDIO_WAVE_READER_RESULT ChunkCollection::GetNumberOfChunks(size_t& a_Size) const
 		{
-			assert(m_Start != nullptr);
+			if (m_Start == nullptr)
+			{
+				logger::Logger::Print(logger::LOGSEVERITY_ERROR, "<WaveReader> Chunk collection has not been initialized.");
+				return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_CHUNK_COLLECTION_NOT_INITIALIZED;
+			}
 
 			unsigned char* data = reinterpret_cast<unsigned char*>(m_Start);
 			a_Size = 0;

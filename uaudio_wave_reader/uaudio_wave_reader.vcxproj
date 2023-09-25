@@ -186,7 +186,8 @@ xcopy "$(ProjectDir)$(ProjectName)\include" "$(OutputPath)include"/i /d /y /e
   <ItemGroup>
     <ClCompile Include="uaudio_wave_reader\private\src\ChunkCollection.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\ChunkFilter.cpp" />
-    <ClCompile Include="uaudio_wave_reader\private\src\ConversionUtils.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\ChunkHeader.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\Logger.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\WaveReader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -198,10 +199,9 @@ xcopy "$(ProjectDir)$(ProjectName)\include" "$(OutputPath)include"/i /d /y /e
     <ClInclude Include="uaudio_wave_reader\include\ChunkHeader.h" />
     <ClInclude Include="uaudio_wave_reader\include\WaveChunks.h" />
     <ClInclude Include="uaudio_wave_reader\include\WaveReader.h" />
-    <ClInclude Include="uaudio_wave_reader\private\include\ConversionUtils.h" />
+    <ClInclude Include="uaudio_wave_reader\private\include\Logger.h" />
     <ClInclude Include="uaudio_wave_reader\private\include\PrivateDefines.h" />
     <ClInclude Include="uaudio_wave_reader\private\include\UAUDIO_WAVE_READER_CONVERSION_RESULT.h" />
-    <ClInclude Include="uaudio_wave_reader\private\include\uint24_t.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
