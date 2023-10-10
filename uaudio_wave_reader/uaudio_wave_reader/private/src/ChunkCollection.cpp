@@ -85,6 +85,7 @@ namespace uaudio
 
 			void* current = utils::add(m_Start, m_Allocated);
 			m_Allocated += a_Size;
+			memset(current, 0, a_Size);
 			return current;
 		}
 

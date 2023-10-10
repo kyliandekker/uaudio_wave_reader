@@ -75,25 +75,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDirDir)bin\$(PlatformShortname)</OutDir>
     <IntDir>$(ProjectDir)build\$(PlatformShortname)_$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>$(ProjectName)_$(PlatformShortname)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDirDir)bin\$(PlatformShortname)</OutDir>
     <IntDir>$(ProjectDir)build\$(PlatformShortname)_$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>$(ProjectName)_$(PlatformShortname)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDirDir)bin\$(PlatformShortname)</OutDir>
     <IntDir>$(ProjectDir)build\$(PlatformShortname)_$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>$(ProjectName)_$(PlatformShortname)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDirDir)bin\$(PlatformShortname)</OutDir>
     <IntDir>$(ProjectDir)build\$(PlatformShortname)_$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>$(ProjectName)_$(PlatformShortname)_$(Configuration)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -187,21 +187,25 @@ xcopy "$(ProjectDir)$(ProjectName)\include" "$(OutputPath)include"/i /d /y /e
     <ClCompile Include="uaudio_wave_reader\private\src\ChunkCollection.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\ChunkFilter.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\ChunkHeader.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\ConversionUtils.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\Logger.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\WaveReader.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\WaveReadSettings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="uaudio_wave_reader\include\ChunkCollection.h" />
     <ClInclude Include="uaudio_wave_reader\include\ChunkFilter.h" />
     <ClInclude Include="uaudio_wave_reader\include\Defines.h" />
     <ClInclude Include="uaudio_wave_reader\include\UAUDIO_WAVE_READER_RESULT.h" />
+    <ClInclude Include="uaudio_wave_reader\include\uint24_t.h" />
     <ClInclude Include="uaudio_wave_reader\include\Utils.h" />
     <ClInclude Include="uaudio_wave_reader\include\ChunkHeader.h" />
     <ClInclude Include="uaudio_wave_reader\include\WaveChunks.h" />
     <ClInclude Include="uaudio_wave_reader\include\WaveReader.h" />
+    <ClInclude Include="uaudio_wave_reader\include\WaveReadSettings.h" />
+    <ClInclude Include="uaudio_wave_reader\private\include\ConversionUtils.h" />
     <ClInclude Include="uaudio_wave_reader\private\include\Logger.h" />
     <ClInclude Include="uaudio_wave_reader\private\include\PrivateDefines.h" />
-    <ClInclude Include="uaudio_wave_reader\private\include\UAUDIO_WAVE_READER_CONVERSION_RESULT.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

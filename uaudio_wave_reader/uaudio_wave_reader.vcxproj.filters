@@ -6,6 +6,8 @@
     <ClCompile Include="uaudio_wave_reader\private\src\ChunkCollection.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\Logger.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\ChunkHeader.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\WaveReadSettings.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\ConversionUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="uaudio_wave_reader\private\include\PrivateDefines.h" />
@@ -17,7 +19,9 @@
     <ClInclude Include="uaudio_wave_reader\include\ChunkHeader.h" />
     <ClInclude Include="uaudio_wave_reader\include\WaveChunks.h" />
     <ClInclude Include="uaudio_wave_reader\include\ChunkFilter.h" />
-    <ClInclude Include="uaudio_wave_reader\private\include\UAUDIO_WAVE_READER_CONVERSION_RESULT.h" />
     <ClInclude Include="uaudio_wave_reader\private\include\Logger.h" />
+    <ClInclude Include="uaudio_wave_reader\include\WaveReadSettings.h" />
+    <ClInclude Include="uaudio_wave_reader\private\include\ConversionUtils.h" />
+    <ClInclude Include="uaudio_wave_reader\include\uint24_t.h" />
   </ItemGroup>
 </Project>

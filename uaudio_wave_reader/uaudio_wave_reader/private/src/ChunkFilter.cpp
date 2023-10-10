@@ -10,6 +10,16 @@ namespace uaudio
 			m_Size = a_Size;
         }
 
+		const char* ChunkFilter::data() const
+		{
+			return m_Data;
+		}
+
+		size_t ChunkFilter::size() const
+		{
+			return m_Size;
+		}
+
 		const char* ChunkFilter::operator[](size_t i) const
 		{
 			return m_Data + (i * CHUNK_ID_SIZE);
