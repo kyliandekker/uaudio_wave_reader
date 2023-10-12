@@ -139,7 +139,7 @@ namespace uaudio
 			void ConvertMonoToStereo(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t a_BlockAlign)
 			{
 				int newIndex = 0;
-				for (uint32_t i = 0; i <= a_Size / 2 - (a_BlockAlign / 2); i += (a_BlockAlign / 2))
+				for (uint32_t i = 0; i <= (a_Size / 2) - (a_BlockAlign / 2); i += (a_BlockAlign / 2))
 				{
 					for (uint32_t j = 0; j < a_BlockAlign; j++)
 					{
@@ -154,53 +154,52 @@ namespace uaudio
 				}
 			}
 
-			void ConvertStereoToMono(FILE*, unsigned char*&, uint32_t, uint16_t)
+			void ConvertStereoToMono(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t a_BlockAlign)
 			{
-				//uint32_t newIndex = 0;
-				//for (uint32_t i = 0; i <= a_Size * 2 - a_BlockAlign; i += a_BlockAlign)
-				//	for (uint32_t j = 0; j < static_cast<uint32_t>(a_BlockAlign) / 2; j++)
-				//	{
-				//		a_DataBuffer[newIndex] = a_DataBuffer[i + j];
-				//		newIndex++;
-				//	}
-			}
+				size_t newIndex = 0;
+				for (uint32_t i = 0; i <= (a_Size * 2) - (a_BlockAlign * 2); i += (a_BlockAlign * 2))
+				{
+					for (size_t j = 0; j < a_BlockAlign; j++)
+					{
+						unsigned char byte = 0;
+						fread(&byte, 1, 1, a_File);
 
-			void ReadAsNormal(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t)
-			{
-				fread(a_DataBuffer, a_Size, 1, a_File);
+						a_DataBuffer[newIndex] = byte;
+						newIndex++;
+					}
+					fseek(a_File, a_BlockAlign, SEEK_CUR);
+				}
 			}
 
 			///// <summary>
-			///// Converts mono data to stereo data.
+			///// Converts stereo data to mono data.
 			///// </summary>
 			///// <param name="a_DataBuffer">The new data buffer.</param>
 			///// <param name="a_OriginalDataBuffer">The original data buffer.</param>
 			///// <param name="a_Size">The data size (will get changed)</param>
 			///// <param name="a_BlockAlign">The alignment of 1 sample.</param>
-			//UAUDIO_WAVE_READER_RESULT ConvertMonoToStereo(unsigned char* a_DataBuffer, const unsigned char* a_OriginalDataBuffer, uint32_t& a_Size, uint16_t a_BlockAlign)
+			//UAUDIO_WAVE_READER_RESULT ConvertStereoToMono(unsigned char* a_DataBuffer, const unsigned char* a_OriginalDataBuffer, uint32_t& a_Size, uint16_t a_BlockAlign)
 			//{
 			//	if (a_Size % a_BlockAlign != 0)
 			//		return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_NOT_ENOUGH_BUFFER_SPACE;
 
 			//	// Double the size.
-			//	a_Size = CalculateMonoToStereoSize(a_Size);
+			//	a_Size = CalculateStereoToMonoSize(a_Size);
 
-			//	int newIndex = 0;
-			//	for (uint32_t i = 0; i <= a_Size / 2 - a_BlockAlign; i += a_BlockAlign)
-			//	{
-			//		int echo = 0;
-			//		while (echo < 2)
+			//	uint32_t newIndex = 0;
+			//	for (uint32_t i = 0; i <= a_Size * 2 - a_BlockAlign; i += a_BlockAlign)
+			//		for (uint32_t j = 0; j < static_cast<uint32_t>(a_BlockAlign) / 2; j++)
 			//		{
-			//			for (uint32_t j = 0; j < a_BlockAlign; j++)
-			//			{
-			//				a_DataBuffer[newIndex] = a_OriginalDataBuffer[i + j];
-			//				newIndex++;
-			//			}
-			//			echo++;
+			//			a_DataBuffer[newIndex] = a_OriginalDataBuffer[i + j];
+			//			newIndex++;
 			//		}
-			//	}
 			//	return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 			//}
+
+			void ReadAsNormal(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t)
+			{
+				fread(a_DataBuffer, a_Size, 1, a_File);
+			}
 
 			///// <summary>
 			///// Converts 24 bit pcm data to 16 bit pcm data.
@@ -254,31 +253,6 @@ namespace uaudio
 			//	}
 			//	a_Size = new_size;
 			//	return UAUDIO_WAVE_READER_CONVERSION_RESULT::UAUDIO_OK;
-			//}
-
-			///// <summary>
-			///// Converts stereo data to mono data.
-			///// </summary>
-			///// <param name="a_DataBuffer">The new data buffer.</param>
-			///// <param name="a_OriginalDataBuffer">The original data buffer.</param>
-			///// <param name="a_Size">The data size (will get changed)</param>
-			///// <param name="a_BlockAlign">The alignment of 1 sample.</param>
-			//UAUDIO_WAVE_READER_RESULT ConvertStereoToMono(unsigned char* a_DataBuffer, const unsigned char* a_OriginalDataBuffer, uint32_t& a_Size, uint16_t a_BlockAlign)
-			//{
-			//	if (a_Size % a_BlockAlign != 0)
-			//		return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_NOT_ENOUGH_BUFFER_SPACE;
-
-			//	// Double the size.
-			//	a_Size = CalculateStereoToMonoSize(a_Size);
-
-			//	uint32_t newIndex = 0;
-			//	for (uint32_t i = 0; i <= a_Size * 2 - a_BlockAlign; i += a_BlockAlign)
-			//		for (uint32_t j = 0; j < static_cast<uint32_t>(a_BlockAlign) / 2; j++)
-			//		{
-			//			a_DataBuffer[newIndex] = a_OriginalDataBuffer[i + j];
-			//			newIndex++;
-			//		}
-			//	return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 			//}
 
 			//// UAUDIO_WAVE_READER_CONVERSION_RESULT ConvertToSamples(float* a_OutSamples, unsigned char* a_DataBuffer, uint32_t a_SampleCount)

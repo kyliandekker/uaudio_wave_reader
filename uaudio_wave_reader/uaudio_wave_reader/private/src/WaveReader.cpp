@@ -106,13 +106,19 @@ namespace uaudio
 						case ChannelsConversionSettings::CONVERSION_MONO:
 						{
 							if (fmt_chunk.numChannels == WAVE_CHANNELS_STEREO)
-								a_Size += conversion::CalculateStereoToMonoSize(data_chunk.chunkSize) - data_chunk.chunkSize;
+							{
+								a_Size -= data_chunk.chunkSize;
+								a_Size += conversion::CalculateStereoToMonoSize(data_chunk.chunkSize);
+							}
 							break;
 						}
 						case ChannelsConversionSettings::CONVERSION_STEREO:
 						{
 							if (fmt_chunk.numChannels == WAVE_CHANNELS_MONO)
-								a_Size += conversion::CalculateMonoToStereoSize(data_chunk.chunkSize) - data_chunk.chunkSize;
+							{
+								a_Size -= data_chunk.chunkSize;
+								a_Size += conversion::CalculateMonoToStereoSize(data_chunk.chunkSize);
+							}
 							break;
 						}
 					}
