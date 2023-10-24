@@ -1,5 +1,7 @@
 #include <cstring>
 
+#include <functional>
+
 #include "WaveReader.h"
 #include "WaveChunks.h"
 #include "PrivateDefines.h"
@@ -7,7 +9,7 @@
 #include "ChunkCollection.h"
 #include "ChunkFilter.h"
 #include "ConversionUtils.h"
-#include <functional>
+#include "UAUDIO_WAVE_READER_RESULT.h"
 
 namespace uaudio
 {
@@ -33,14 +35,14 @@ namespace uaudio
 
 			int32_t data_pos = -1, fmt_pos = -1;
 
-			char previous_chunk_id[CHUNK_ID_SIZE] = {};
+			unsigned char previous_chunk_id[CHUNK_ID_SIZE] = {};
 			long previous_tell = 0;
 
 			// First we go through the file to get the size of all the chosen chunks.
 			// Check if file has reached eof.
 			while (file_size != ftell(file))
 			{
-				char chunk_id[CHUNK_ID_SIZE] = {};
+				unsigned char chunk_id[CHUNK_ID_SIZE] = {};
 				uint32_t chunk_size = 0;
 
 				// Load the chunk.
@@ -49,7 +51,7 @@ namespace uaudio
 					break;
 
 				// Check if it is the riff chunk, if it is, don't allocate.
-				if (strncmp(&chunk_id[0], RIFF_CHUNK_ID, CHUNK_ID_SIZE) == 0)
+				if (utils::chunkcmp(chunk_id, RIFF_CHUNK_ID) == 0)
 				{
 					fseek(file, sizeof(RIFF_Chunk) - sizeof(ChunkHeader), SEEK_CUR);
 					continue;
@@ -63,7 +65,7 @@ namespace uaudio
 				{
 					ChunkFilter& chunkFilter = *a_WaveReadSettings.m_ChunkFilter;
 					for (size_t i = 0; i < a_WaveReadSettings.m_ChunkFilter->size(); i++)
-						if (strncmp(&chunk_id[0], chunkFilter[i], CHUNK_ID_SIZE) == 0)
+						if (utils::chunkcmp(chunk_id, chunkFilter[i]) == 0)
 							get_chunk = true;
 				}
 				else
@@ -76,10 +78,10 @@ namespace uaudio
 					a_Size += chunk_size;
 					a_Size += sizeof(ChunkHeader);
 
-					if (strncmp(&chunk_id[0], DATA_CHUNK_ID, CHUNK_ID_SIZE) == 0)
+					if (utils::chunkcmp(chunk_id, DATA_CHUNK_ID) == 0)
 						data_pos = previous_tell - sizeof(ChunkHeader);
 
-					if (strncmp(&chunk_id[0], FMT_CHUNK_ID, CHUNK_ID_SIZE) == 0)
+					if (utils::chunkcmp(chunk_id, FMT_CHUNK_ID) == 0)
 						fmt_pos = previous_tell - sizeof(ChunkHeader);
 				}
 				else
@@ -107,8 +109,8 @@ namespace uaudio
 						{
 							if (fmt_chunk.numChannels == WAVE_CHANNELS_STEREO)
 							{
-								a_Size -= data_chunk.chunkSize;
-								a_Size += conversion::CalculateStereoToMonoSize(data_chunk.chunkSize);
+								a_Size -= data_chunk.ChunkSize();
+								a_Size += conversion::CalculateStereoToMonoSize(data_chunk.ChunkSize());
 							}
 							break;
 						}
@@ -116,8 +118,8 @@ namespace uaudio
 						{
 							if (fmt_chunk.numChannels == WAVE_CHANNELS_MONO)
 							{
-								a_Size -= data_chunk.chunkSize;
-								a_Size += conversion::CalculateMonoToStereoSize(data_chunk.chunkSize);
+								a_Size -= data_chunk.ChunkSize();
+								a_Size += conversion::CalculateMonoToStereoSize(data_chunk.ChunkSize());
 							}
 							break;
 						}
@@ -150,7 +152,7 @@ namespace uaudio
 			fseek(a_File, static_cast<uint32_t>(data_chunk_offset), SEEK_SET);
 			fread(&data_chunk, sizeof(ChunkHeader), 1, a_File);
 
-			std::function<void(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t a_BlockAlign)> conversionMethod = conversion::ReadAsNormal;
+			std::function<void(FILE*, unsigned char*&, uint32_t, uint16_t, uint16_t)> conversionMethod = conversion::ReadAsNormal;
 
 			if (channelSettings != ChannelsConversionSettings::CONVERSION_IDC)
 			{
@@ -160,8 +162,8 @@ namespace uaudio
 					{
 						case ChannelsConversionSettings::CONVERSION_STEREO:
 						{
-							uint32_t chunkSize = conversion::CalculateMonoToStereoSize(data_chunk.chunkSize);
-							data_chunk.chunkSize = chunkSize;
+							uint32_t chunkSize = conversion::CalculateMonoToStereoSize(data_chunk.ChunkSize());
+							data_chunk.SetChunkSize(chunkSize);
 							conversionMethod = conversion::ConvertMonoToStereo;
 
 							fmt_chunk.blockAlign *= 2;
@@ -171,8 +173,8 @@ namespace uaudio
 						}
 						case ChannelsConversionSettings::CONVERSION_MONO:
 						{
-							uint32_t chunkSize = conversion::CalculateStereoToMonoSize(data_chunk.chunkSize);
-							data_chunk.chunkSize = chunkSize;
+							uint32_t chunkSize = conversion::CalculateStereoToMonoSize(data_chunk.ChunkSize());
+							data_chunk.SetChunkSize(chunkSize);
 							conversionMethod = conversion::ConvertStereoToMono;
 
 							fmt_chunk.blockAlign /= 2;
@@ -186,19 +188,19 @@ namespace uaudio
 
 			// Construct FMT chunk.
 			{
-				ChunkHeader* chunk_data = reinterpret_cast<ChunkHeader*>(a_ChunkCollection.Alloc(fmt_chunk.chunkSize + sizeof(ChunkHeader)));
+				ChunkHeader* chunk_data = reinterpret_cast<ChunkHeader*>(a_ChunkCollection.Alloc(fmt_chunk.ChunkSize() + sizeof(ChunkHeader)));
 
 				if (chunk_data != nullptr)
 					memcpy(chunk_data, &fmt_chunk, sizeof(fmt_chunk));
 			}
 			// Construct DATA chunk.
 			{
-				ChunkHeader* chunk_data = reinterpret_cast<ChunkHeader*>(a_ChunkCollection.Alloc(data_chunk.chunkSize + sizeof(ChunkHeader)));
+				ChunkHeader* chunk_data = reinterpret_cast<ChunkHeader*>(a_ChunkCollection.Alloc(data_chunk.ChunkSize() + sizeof(ChunkHeader)));
 				memcpy(chunk_data, &data_chunk, sizeof(ChunkHeader));
 				unsigned char* data = reinterpret_cast<unsigned char*>(utils::add(chunk_data, sizeof(ChunkHeader)));
 
 				fseek(a_File, static_cast<uint32_t>(data_chunk_offset + sizeof(ChunkHeader)), SEEK_SET);
-				conversionMethod(a_File, data, data_chunk.chunkSize, fmt_chunk.blockAlign);
+				conversionMethod(a_File, data, data_chunk.ChunkSize(), fmt_chunk.blockAlign, fmt_chunk.bitsPerSample);
 			}
 		}
 
@@ -218,7 +220,7 @@ namespace uaudio
 			if (result != UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
 				return result;
 
-			char previous_chunk_id[CHUNK_ID_SIZE] = {};
+			unsigned char previous_chunk_id[CHUNK_ID_SIZE] = {};
 			long previous_tell = 0;
 
 			int32_t fmt_chunk_offset = -1, data_chunk_offset = -1;
@@ -227,16 +229,16 @@ namespace uaudio
 			// Check if file has reached eof.
 			while (file_size != ftell(file))
 			{
-				char chunk_id[CHUNK_ID_SIZE] = {};
+				unsigned char chunk_id[CHUNK_ID_SIZE] = {};
 				uint32_t chunk_size = 0;
 
 				// Load the chunk.
-				result = LoadChunk(file, previous_tell, &previous_chunk_id[0], &chunk_id[0], chunk_size);
+				result = LoadChunk(file, previous_tell, previous_chunk_id, chunk_id, chunk_size);
 				if (result != UAUDIO_WAVE_READER_RESULT::UAUDIO_OK)
 					break;
 
 				// Check if it is the riff chunk, if it is, don't allocate.
-				if (strncmp(&chunk_id[0], RIFF_CHUNK_ID, CHUNK_ID_SIZE) == 0)
+				if (utils::chunkcmp(chunk_id, RIFF_CHUNK_ID) == 0)
 				{
 					fseek(file, sizeof(RIFF_Chunk) - sizeof(ChunkHeader), SEEK_CUR);
 					continue;
@@ -250,7 +252,7 @@ namespace uaudio
 				{
 					ChunkFilter& chunkFilter = *a_WaveReadSettings.m_ChunkFilter;
 					for (size_t i = 0; i < a_WaveReadSettings.m_ChunkFilter->size(); i++)
-						if (strncmp(&chunk_id[0], chunkFilter[i], CHUNK_ID_SIZE) == 0)
+						if (utils::chunkcmp(chunk_id, chunkFilter[i]) == 0)
 							get_chunk = true;
 				}
 				else
@@ -261,12 +263,12 @@ namespace uaudio
 					if (showInfo)
 						logger::Logger::Print(logger::LOGSEVERITY_INFO, "<WaveReader> Found %s\"%.4s\"%s chunk with size %s\"%i\"%s.", COLOR_YELLOW, chunk_id, COLOR_WHITE, COLOR_YELLOW, chunk_size, COLOR_WHITE);
 
-					if (strncmp(&chunk_id[0], FMT_CHUNK_ID, CHUNK_ID_SIZE) == 0)
+					if (utils::chunkcmp(chunk_id, FMT_CHUNK_ID) == 0)
 					{
 						fmt_chunk_offset = previous_tell - sizeof(ChunkHeader);
 						fseek(file, chunk_size, SEEK_CUR);
 					}
-					else if (strncmp(&chunk_id[0], DATA_CHUNK_ID, CHUNK_ID_SIZE) == 0)
+					else if (utils::chunkcmp(chunk_id, DATA_CHUNK_ID) == 0)
 					{
 						data_chunk_offset = previous_tell - sizeof(ChunkHeader);
 						fseek(file, chunk_size, SEEK_CUR);
@@ -278,7 +280,7 @@ namespace uaudio
 						if (chunk_data != nullptr)
 						{
 							memcpy(chunk_data->chunk_id, chunk_id, sizeof(chunk_id));
-							chunk_data->chunkSize = chunk_size;
+							chunk_data->SetChunkSize(chunk_size);
 							fread(utils::add(chunk_data, sizeof(ChunkHeader)), 1, chunk_size, file);
 						}
 						else
@@ -326,7 +328,7 @@ namespace uaudio
 
 			RIFF_Chunk riff_chunk;
 			memcpy(riff_chunk.chunk_id, RIFF_CHUNK_ID, CHUNK_ID_SIZE);
-			riff_chunk.chunkSize = size;
+			riff_chunk.SetChunkSize(size);
 			memcpy(riff_chunk.format, RIFF_CHUNK_FORMAT, CHUNK_ID_SIZE);
 			fwrite(&riff_chunk, sizeof(riff_chunk), 1, file);
 
@@ -385,7 +387,7 @@ namespace uaudio
 		/// <param name="a_ChunkID">New chunk id that is to be found.</param>
 		/// <param name="a_ChunkSize">New chunk size that is to be found.</param>
 		/// <returns>WAVE reading result.</returns>
-		UAUDIO_WAVE_READER_RESULT WaveReader::LoadChunk(FILE* a_File, long& a_PreviousTell, char* a_PrevChunkID, char* a_ChunkID, uint32_t& a_ChunkSize)
+		UAUDIO_WAVE_READER_RESULT WaveReader::LoadChunk(FILE* a_File, long& a_PreviousTell, unsigned char* a_PrevChunkID, unsigned char* a_ChunkID, uint32_t& a_ChunkSize)
 		{
 			char chunk_id[CHUNK_ID_SIZE] = {};
 
@@ -406,7 +408,7 @@ namespace uaudio
 			}
 
 			// Fail-safe for if the algorithm is stuck with a specific chunk. It gives up at second try.
-			if (strncmp(a_ChunkID, a_PrevChunkID, CHUNK_ID_SIZE) == 0)
+			if (utils::chunkcmp(a_ChunkID, a_PrevChunkID) == 0)
 			{
 				// Set the current tell.
 				a_PreviousTell = ftell(a_File);

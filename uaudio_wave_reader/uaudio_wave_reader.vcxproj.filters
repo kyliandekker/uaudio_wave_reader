@@ -8,6 +8,8 @@
     <ClCompile Include="uaudio_wave_reader\private\src\ChunkHeader.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\WaveReadSettings.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\ConversionUtils.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\Utils.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\WaveChunks.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="uaudio_wave_reader\private\include\PrivateDefines.h" />

@@ -39,7 +39,7 @@ namespace uaudio
 				{
 					return wave_chunk_data;
 				}
-				data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->chunkSize));
+				data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->ChunkSize()));
 			}
 			return nullptr;
 		}
@@ -57,7 +57,7 @@ namespace uaudio
 			while (data < m_End)
 			{
 				ChunkHeader* wave_chunk_data = reinterpret_cast<ChunkHeader*>(data);
-				data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->chunkSize));
+				data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->ChunkSize()));
 				if (index == a_Index)
 					return wave_chunk_data;
 				index++;
@@ -95,7 +95,7 @@ namespace uaudio
 			if (chunkCollection)
 			{
 				memcpy(chunkCollection->chunk_id, a_ChunkId, CHUNK_ID_SIZE);
-				chunkCollection->chunkSize = static_cast<uint32_t>(a_Size);
+				chunkCollection->SetChunkSize(static_cast<uint32_t>(a_Size));
 			}
 			return reinterpret_cast<void*>(chunkCollection);
 		}
@@ -135,7 +135,7 @@ namespace uaudio
 			ChunkHeader* data = GetChunkFromAllocator(a_ChunkID);
 			if (data != nullptr)
 			{
-				a_Size = data->chunkSize;
+				a_Size = data->ChunkSize();
 				return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
 			}
 
@@ -155,7 +155,7 @@ namespace uaudio
 			while (data < m_End)
 			{
 				ChunkHeader* wave_chunk_data = reinterpret_cast<ChunkHeader*>(data);
-				data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->chunkSize));
+				data = reinterpret_cast<unsigned char*>(utils::add(data, sizeof(ChunkHeader) + wave_chunk_data->ChunkSize()));
 				a_Size++;
 			}
 			return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;

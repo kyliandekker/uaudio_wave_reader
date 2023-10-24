@@ -1,5 +1,7 @@
 #include "WaveReadSettings.h"
 
+#include "UAUDIO_WAVE_READER_RESULT.h"
+
 namespace uaudio
 {
 	namespace wave_reader

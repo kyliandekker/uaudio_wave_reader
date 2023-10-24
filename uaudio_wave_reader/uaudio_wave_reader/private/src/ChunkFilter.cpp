@@ -1,5 +1,7 @@
 #include "ChunkFilter.h"
 
+#include "./Defines.h"
+
 namespace uaudio
 {
 	namespace wave_reader

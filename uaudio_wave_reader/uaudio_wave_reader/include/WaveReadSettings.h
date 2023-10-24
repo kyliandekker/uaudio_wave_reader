@@ -1,11 +1,11 @@
 #pragma once
 
-#include "UAUDIO_WAVE_READER_RESULT.h"
-
 namespace uaudio
 {
 	namespace wave_reader
 	{
+		enum class UAUDIO_WAVE_READER_RESULT;
+
 		enum class BPSConversionSettings
 		{
 			CONVERSION_IDC = 0,

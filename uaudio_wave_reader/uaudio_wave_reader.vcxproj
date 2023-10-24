@@ -189,6 +189,8 @@ xcopy "$(ProjectDir)$(ProjectName)\include" "$(OutputPath)include"/i /d /y /e
     <ClCompile Include="uaudio_wave_reader\private\src\ChunkHeader.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\ConversionUtils.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\Logger.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\Utils.cpp" />
+    <ClCompile Include="uaudio_wave_reader\private\src\WaveChunks.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\WaveReader.cpp" />
     <ClCompile Include="uaudio_wave_reader\private\src\WaveReadSettings.cpp" />
   </ItemGroup>

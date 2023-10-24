@@ -362,6 +362,30 @@ TEST_CASE("Audio Loading")
 	{
 		const char* chunk_filters = "datafmt ";
 
+		SUBCASE("Mono to Stereo 8-bit")
+		{
+			uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 2 };
+
+			uaudio::wave_reader::WaveReadSettings settings;
+			settings.SetChunkFilter(filters);
+
+			settings.SetChannels(uaudio::wave_reader::ChannelsConversionSettings::CONVERSION_STEREO);
+
+			const char* path_mono = "resources/8-mono.wav";
+
+			size_t size_mono = 0;
+			uaudio::wave_reader::WaveReader::FTell(path_mono, size_mono, settings);
+
+			const char* path = "resources/8.wav";
+
+			size_t size = 0;
+			uaudio::wave_reader::WaveReader::FTell(path, size, settings);
+
+			CHECK(size_mono == size);
+
+			log_success("Mono to Stereo 8-bit", "Done");
+		}
+
 		SUBCASE("Mono to Stereo 16-bit")
 		{
 			uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 2 };
@@ -407,11 +431,79 @@ TEST_CASE("Audio Loading")
 
 			CHECK(size_mono == size);
 
-			void* allocated_space = malloc(size);
-			uaudio::wave_reader::ChunkCollection chunkCollection = uaudio::wave_reader::ChunkCollection(allocated_space, size);
-			uaudio::wave_reader::WaveReader::LoadWave(path, chunkCollection, settings);
-
 			log_success("Mono to Stereo 32-bit", "Done");
+		}
+
+		SUBCASE("Mono to Stereo 24-bit")
+		{
+			uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 2 };
+
+			uaudio::wave_reader::WaveReadSettings settings;
+			settings.SetChunkFilter(filters);
+
+			settings.SetChannels(uaudio::wave_reader::ChannelsConversionSettings::CONVERSION_STEREO);
+
+			const char* path_mono = "resources/24-mono.wav";
+
+			size_t size_mono = 0;
+			uaudio::wave_reader::WaveReader::FTell(path_mono, size_mono, settings);
+
+			const char* path = "resources/24.wav";
+
+			size_t size = 0;
+			uaudio::wave_reader::WaveReader::FTell(path, size, settings);
+
+			CHECK(size_mono == size);
+
+			log_success("Mono to Stereo 24-bit", "Done");
+		}
+
+		SUBCASE("Stereo to Mono 8-bit")
+		{
+			uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 2 };
+
+			uaudio::wave_reader::WaveReadSettings settings;
+			settings.SetChunkFilter(filters);
+
+			settings.SetChannels(uaudio::wave_reader::ChannelsConversionSettings::CONVERSION_MONO);
+
+			const char* path = "resources/8.wav";
+
+			size_t size = 0;
+			uaudio::wave_reader::WaveReader::FTell(path, size, settings);
+
+			const char* path_mono = "resources/8-mono-2.wav";
+
+			size_t size_mono = 0;
+			uaudio::wave_reader::WaveReader::FTell(path_mono, size_mono, settings);
+
+			CHECK(size == size_mono);
+
+			log_success("Mono to Stereo 8-bit", "Done");
+		}
+
+		SUBCASE("Stereo to Mono 16-bit")
+		{
+			uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 2 };
+
+			uaudio::wave_reader::WaveReadSettings settings;
+			settings.SetChunkFilter(filters);
+
+			settings.SetChannels(uaudio::wave_reader::ChannelsConversionSettings::CONVERSION_MONO);
+
+			const char* path = "resources/16.wav";
+
+			size_t size = 0;
+			uaudio::wave_reader::WaveReader::FTell(path, size, settings);
+
+			const char* path_mono = "resources/16-mono.wav";
+
+			size_t size_mono = 0;
+			uaudio::wave_reader::WaveReader::FTell(path_mono, size_mono, settings);
+
+			CHECK(size == size_mono);
+
+			log_success("Mono to Stereo 16-bit", "Done");
 		}
 	}
 	//		uaudio::wave_reader::ChunkFilter filters{ chunk_filters, 2 };
