@@ -152,7 +152,7 @@ namespace uaudio
 			fseek(a_File, static_cast<uint32_t>(data_chunk_offset), SEEK_SET);
 			fread(&data_chunk, sizeof(ChunkHeader), 1, a_File);
 
-			std::function<void(FILE*, unsigned char*&, uint32_t, uint16_t, uint16_t)> conversionMethod = conversion::ReadAsNormal;
+			std::function<void(FILE*, unsigned char*&, uint32_t, uint16_t, uint16_t, uint16_t)> conversionMethod = conversion::ReadAsNormal;
 
 			if (channelSettings != ChannelsConversionSettings::CONVERSION_IDC)
 			{
@@ -200,7 +200,7 @@ namespace uaudio
 				unsigned char* data = reinterpret_cast<unsigned char*>(utils::add(chunk_data, sizeof(ChunkHeader)));
 
 				fseek(a_File, static_cast<uint32_t>(data_chunk_offset + sizeof(ChunkHeader)), SEEK_SET);
-				conversionMethod(a_File, data, data_chunk.ChunkSize(), fmt_chunk.blockAlign, fmt_chunk.bitsPerSample);
+				conversionMethod(a_File, data, data_chunk.ChunkSize(), fmt_chunk.blockAlign, fmt_chunk.bitsPerSample, fmt_chunk.audioFormat);
 			}
 		}
 

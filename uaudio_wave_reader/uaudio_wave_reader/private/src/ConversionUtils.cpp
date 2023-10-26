@@ -138,60 +138,20 @@ namespace uaudio
 				return a_Size / 2;
 			}
 
-			void ConvertMonoToStereo(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t a_BlockAlign, uint16_t)
+			void ConvertMonoToStereo(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t a_BlockAlign, uint16_t, uint16_t)
 			{
-				int newIndex = 0;
-				for (uint32_t i = 0; i <= (a_Size / 2) - (a_BlockAlign / 2); i += (a_BlockAlign / 2))
+				uint32_t mono_size = a_Size / 2;
+				uint32_t mono_blockAlign = a_BlockAlign / 2;
+				for (uint32_t i = 0; i < mono_size; i += mono_blockAlign)
 				{
-					for (uint32_t j = 0; j < a_BlockAlign; j++)
-					{
-						unsigned char byte = 0;
-						fread(&byte, 1, 1, a_File);
-
-						a_DataBuffer[newIndex] = byte;
-						newIndex++;
-						if (j == static_cast<uint32_t>(a_BlockAlign / 2))
-							fseek(a_File, -static_cast<int32_t>(a_BlockAlign / 2), SEEK_CUR);
-					}
+					fread(a_DataBuffer, mono_blockAlign, 1, a_File);
+					memcpy(utils::add(a_DataBuffer, mono_blockAlign), a_DataBuffer, mono_blockAlign);
+					a_DataBuffer += a_BlockAlign;
 				}
 			}
 
-			void ConvertStereoToMono(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t a_BlockAlign, uint16_t bitsPerSample)
+			void ConvertStereoToMono(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t a_BlockAlign, uint16_t bitsPerSample, uint16_t audioFormat)
 			{
-				//size_t newIndex = 0;
-				//for (uint32_t i = 0; i < a_Size; i += a_BlockAlign)
-				//{
-				//	long pos = ftell(a_File);
-				//	for (size_t j = 0; j < a_BlockAlign; j++)
-				//	{
-				//		unsigned char byte = 0;
-				//		fread(&byte, sizeof(byte), 1, a_File);
-
-				//		double left = static_cast<double>(byte);
-
-				//		a_DataBuffer[newIndex] = byte;
-
-				//		fseek(a_File, -1, SEEK_CUR);
-				//		fseek(a_File, a_BlockAlign, SEEK_CUR);
-
-				//		fread(&byte, sizeof(byte), 1, a_File);
-
-				//		double right = static_cast<double>(byte);
-
-				//		double val = (left * 0.5f) + (right * 0.5f);
-
-				//		val = static_cast<double>(floor(val));
-
-				//		a_DataBuffer[newIndex] = static_cast<unsigned char>(val);
-
-				//		fseek(a_File, -static_cast<int>(a_BlockAlign), SEEK_CUR);
-
-				//		newIndex++;
-				//	}
-				//	fseek(a_File, pos, SEEK_SET);
-				//	fseek(a_File, a_BlockAlign * 2, SEEK_CUR);
-				//}
-
 				size_t realNumSamples = a_Size / a_BlockAlign;
 
 				if (realNumSamples == 0)
@@ -229,7 +189,7 @@ namespace uaudio
 						a_DataBuffer[index] = d;
 						index++;
 					}
-					if (bitsPerSample == WAVE_BITS_PER_SAMPLE_16)
+					else if (bitsPerSample == WAVE_BITS_PER_SAMPLE_16)
 					{
 						int16_t lSample = 0;
 						fread(&lSample, a_BlockAlign, 1, a_File);
@@ -251,7 +211,49 @@ namespace uaudio
 							index++;
 						}
 					}
-					if (bitsPerSample == WAVE_BITS_PER_SAMPLE_32)
+					else if (bitsPerSample == WAVE_BITS_PER_SAMPLE_32_FLOAT && audioFormat == WAV_FORMAT_IEEE_FLOAT)
+					{
+						float lSample = 0;
+						fread(&lSample, a_BlockAlign, 1, a_File);
+						float rSample = 0;
+						fread(&rSample, a_BlockAlign, 1, a_File);
+
+						double fLSample = static_cast<double>(lSample);
+						double fRSample = static_cast<double>(rSample);
+
+						double sample = (fLSample * 0.5) + (fRSample * 0.5);
+
+						float iSample = static_cast<float>(sample);
+
+						for (size_t j = 0; j < a_BlockAlign; j++)
+						{
+							unsigned char d = *reinterpret_cast<unsigned char*>(utils::add(&iSample, j));
+							a_DataBuffer[index] = d;
+							index++;
+						}
+					}
+					else if (bitsPerSample == WAVE_BITS_PER_SAMPLE_64)
+					{
+						double lSample = 0;
+						fread(&lSample, a_BlockAlign, 1, a_File);
+						double rSample = 0;
+						fread(&rSample, a_BlockAlign, 1, a_File);
+
+						double fLSample = static_cast<double>(lSample);
+						double fRSample = static_cast<double>(rSample);
+
+						double sample = (fLSample * 0.5) + (fRSample * 0.5);
+
+						double iSample = static_cast<double>(sample);
+
+						for (size_t j = 0; j < a_BlockAlign; j++)
+						{
+							unsigned char d = *reinterpret_cast<unsigned char*>(utils::add(&iSample, j));
+							a_DataBuffer[index] = d;
+							index++;
+						}
+					}
+					else if (bitsPerSample == WAVE_BITS_PER_SAMPLE_32)
 					{
 						int32_t lSample = 0;
 						fread(&lSample, a_BlockAlign, 1, a_File);
@@ -278,32 +280,7 @@ namespace uaudio
 				}
 			}
 
-			///// <summary>
-			///// Converts stereo data to mono data.
-			///// </summary>
-			///// <param name="a_DataBuffer">The new data buffer.</param>
-			///// <param name="a_OriginalDataBuffer">The original data buffer.</param>
-			///// <param name="a_Size">The data size (will get changed)</param>
-			///// <param name="a_BlockAlign">The alignment of 1 sample.</param>
-			//UAUDIO_WAVE_READER_RESULT ConvertStereoToMono(unsigned char* a_DataBuffer, const unsigned char* a_OriginalDataBuffer, uint32_t& a_Size, uint16_t a_BlockAlign)
-			//{
-			//	if (a_Size % a_BlockAlign != 0)
-			//		return UAUDIO_WAVE_READER_RESULT::UAUDIO_ERR_NOT_ENOUGH_BUFFER_SPACE;
-
-			//	// Double the size.
-			//	a_Size = CalculateStereoToMonoSize(a_Size);
-
-			//	uint32_t newIndex = 0;
-			//	for (uint32_t i = 0; i <= a_Size * 2 - a_BlockAlign; i += a_BlockAlign)
-			//		for (uint32_t j = 0; j < static_cast<uint32_t>(a_BlockAlign) / 2; j++)
-			//		{
-			//			a_DataBuffer[newIndex] = a_OriginalDataBuffer[i + j];
-			//			newIndex++;
-			//		}
-			//	return UAUDIO_WAVE_READER_RESULT::UAUDIO_OK;
-			//}
-
-			void ReadAsNormal(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t, uint16_t)
+			void ReadAsNormal(FILE* a_File, unsigned char*& a_DataBuffer, uint32_t a_Size, uint16_t, uint16_t, uint16_t)
 			{
 				fread(a_DataBuffer, a_Size, 1, a_File);
 			}
